@@ -84,7 +84,7 @@ class ProductController {
     @DELETE
     @Path("/{id}")
     fun deleteProductById(@PathParam("id") id: String): ApiResponse<Boolean> {
-        val deletedProduct =  productService.deleteProductById(id)
+        productService.deleteProductById(id)
         return wrapSuccessInResponse(true)
     }
 }

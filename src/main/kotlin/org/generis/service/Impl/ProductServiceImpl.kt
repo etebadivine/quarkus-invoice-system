@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.transaction.Transactional
 import org.generis.dto.*
+import org.generis.entity.Customer
 import org.generis.entity.Product
 import org.generis.enums.ProductState
 import org.generis.exception.ServiceException
@@ -21,7 +22,6 @@ class ProductServiceImpl: ProductService {
     @Inject
     var entityManager: EntityManager? = null
 
-    private val logger = LoggerFactory.getLogger(ProductServiceImpl::class.java)
     private val modelMapper = ModelMapper()
 
     override fun getProduct(id: String): Product {
@@ -29,10 +29,16 @@ class ProductServiceImpl: ProductService {
         throw ServiceException(-1, "No product found with id $id")
     }
 
-
     override fun getByProductName(productName: String): Product? {
-        TODO("Not yet implemented")
+        val query: TypedQuery<Product> = entityManager!!.createQuery(
+            "SELECT p FROM Product p WHERE p.productName = :productName",
+            Product::class.java
+        )
+        query.setParameter("productName", productName)
+        return query.singleResult
+
     }
+
 
     override fun geProductByType(productState: ProductState): List<Product> {
         val query: TypedQuery<Product> = entityManager!!.createQuery(
