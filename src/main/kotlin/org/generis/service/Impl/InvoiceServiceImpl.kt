@@ -1,10 +1,12 @@
 package org.generis.service.Impl
 
+import io.quarkus.mailer.Attachment
+import io.quarkus.mailer.Mail
+import io.quarkus.mailer.Mailer
 import jakarta.inject.*
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import jakarta.ws.rs.DELETE
-import jakarta.ws.rs.Path
+import jakarta.validation.constraints.Email
 import org.generis.dto.*
 import org.generis.entity.*
 import org.generis.exception.ServiceException
@@ -21,6 +23,10 @@ class InvoiceServiceImpl: InvoiceService {
 
     @Inject
     var entityManager: EntityManager? = null
+
+//    @Inject
+//    private lateinit var mailer: Mailer
+
 
     override fun createInvoice(createInvoiceDto: CreateInvoiceDto): Invoice {
         // Retrieve the customer based on the customerId from the database
@@ -71,14 +77,18 @@ class InvoiceServiceImpl: InvoiceService {
         val discountPercent = createInvoiceDto.discount
         val discountAmount = subtotal * (discountPercent?.div(100.0)!!)
 
+        val taxPercent = createInvoiceDto.tax
+        val taxAmount = subtotal * (taxPercent?.div(100.0)!!)
+
         // Apply tax and discount to calculate the total
         invoice.subTotal = subtotal
-        invoice.totalAmount = subtotal + invoice.tax!! - discountAmount
+        invoice.totalAmount = subtotal + taxAmount - discountAmount
 
         // Save the invoice to the database
         entityManager!!.persist(invoice)
 
         return invoice
+
     }
 
     override fun getInvoice(id: String): InvoiceDto? {
@@ -99,6 +109,13 @@ class InvoiceServiceImpl: InvoiceService {
 
         return entityManager!!.merge(invoice)
     }
+
+//    override fun sendMail(invoice: Invoice) {
+//        mailer.send(Mail.withText("kofidvyn@gmail.com",
+//            "A simple email from quarkus #${invoice.invoiceNumber}",
+//            "This is my body."));
+//
+//    }
 
     override fun deleteInvoice(id: String) {
         val invoice = entityManager?.find(Invoice::class.java, id)
@@ -135,4 +152,7 @@ class InvoiceServiceImpl: InvoiceService {
             totalAmount = this.totalAmount
         )
     }
+
+
 }
+

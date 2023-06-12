@@ -1,5 +1,7 @@
 package org.generis.controller
 
+import io.quarkus.mailer.Mail
+import io.quarkus.mailer.Mailer
 import jakarta.inject.Inject
 import jakarta.validation.Valid
 import jakarta.ws.rs.*
@@ -22,6 +24,8 @@ class InvoiceController {
     @Inject
     lateinit var invoiceService: InvoiceService
 
+    @Inject
+    private lateinit var mailer: Mailer
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -66,4 +70,12 @@ class InvoiceController {
         invoiceService.deleteInvoice(id)
         return wrapSuccessInResponse(true)
     }
+
+    @POST
+    @Path("/simple")
+    fun sendASimpleEmail(): ApiResponse<Boolean> {
+        mailer.send(Mail.withText("kofidvyn@gmail.com", "A simple email from quarkus", "This is my body"))
+        return wrapSuccessInResponse(true)
+    }
+
 }

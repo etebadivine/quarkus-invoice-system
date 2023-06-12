@@ -16,5 +16,7 @@ interface InvoiceService {
 
     fun updateInvoiceStatus(updateInvoiceStatusDto: UpdateInvoiceStatusDto): Invoice
 
+//    fun sendMail(invoice: Invoice)
+
     fun deleteInvoice(id: String)
 }

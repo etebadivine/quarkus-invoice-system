@@ -1,5 +1,6 @@
 package org.generis.controller
 
+import jakarta.annotation.security.RolesAllowed
 import jakarta.inject.Inject
 import jakarta.validation.Valid
 import jakarta.ws.rs.*
@@ -13,6 +14,8 @@ import org.generis.util.*
 import org.modelmapper.ModelMapper
 import org.slf4j.LoggerFactory
 
+
+//@RolesAllowed("ROLE_ADMIN")
 
 @Path("products")
 @Produces(MediaType.APPLICATION_JSON)
