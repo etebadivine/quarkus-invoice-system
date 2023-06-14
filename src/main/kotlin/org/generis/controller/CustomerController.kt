@@ -57,11 +57,11 @@ class CustomerController {
     @GET
     fun getAllCustomers(): ApiResponse<List<CustomerDto>> {
         val customers = customerService.getAllCustomers()
-        val customerDto = customers.map { customer -> mapProductToDto(customer) }
+        val customerDto = customers.map { customer -> mapCustomerToDto(customer) }
         return wrapSuccessInResponse(customerDto)
     }
 
-    private fun mapProductToDto(customer: Customer): CustomerDto {
+    private fun mapCustomerToDto(customer: Customer): CustomerDto {
         return CustomerDto(
             id = customer.id,
             name = customer.name,

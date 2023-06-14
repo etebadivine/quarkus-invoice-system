@@ -1,6 +1,5 @@
 package org.generis.controller
 
-import io.quarkus.mailer.Mail
 import io.quarkus.mailer.Mailer
 import jakarta.inject.Inject
 import jakarta.validation.Valid
@@ -44,7 +43,7 @@ class InvoiceController {
 
     @GET
     @Path("{id}")
-    fun getInvoiceById( @PathParam("id") id: String): ApiResponse<InvoiceDto?> {
+    fun getInvoiceById(@PathParam("id") id: String): ApiResponse<InvoiceDto?> {
         val invoice = invoiceService.getInvoice(id)
         return wrapSuccessInResponse(invoice)
     }
@@ -66,16 +65,17 @@ class InvoiceController {
 
     @DELETE
     @Path("/{id}")
-    fun deleteInvoice(@PathParam("id") id: String): ApiResponse<Boolean>{
+    fun deleteInvoice(@PathParam("id") id: String): ApiResponse<Boolean> {
         invoiceService.deleteInvoice(id)
         return wrapSuccessInResponse(true)
     }
 
-    @POST
-    @Path("/simple")
-    fun sendASimpleEmail(): ApiResponse<Boolean> {
-        mailer.send(Mail.withText("kofidvyn@gmail.com", "A simple email from quarkus", "This is my body"))
-        return wrapSuccessInResponse(true)
-    }
 
+    @GET
+    @Path("/{customerId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    fun getInvoiceByCustomerId(@PathParam("customerId") customerId: String): ApiResponse<List<InvoiceDto>> {
+        val invoices = invoiceService.getInvoiceByCustomerId(customerId)
+        return wrapSuccessInResponse(invoices)
+    }
 }

@@ -126,10 +126,6 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-oidc</artifactId>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>io.quarkus</groupId>-->
-<!--      <artifactId>quarkus-keycloak-authorization</artifactId>-->
-<!--    </dependency>-->
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-mailer</artifactId>
@@ -149,7 +145,14 @@
         <artifactId>itextpdf</artifactId>
         <version>5.5.13</version>
       </dependency>
-
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-smallrye-openapi</artifactId>
+    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>io.quarkus</groupId>-->
+<!--      <artifactId>quarkus-rest-client</artifactId>-->
+<!--    </dependency>-->
   </dependencies>
   <build>
     <sourceDirectory>src/main/kotlin</sourceDirectory>
@@ -239,7 +242,6 @@
             <artifactId>kotlin-maven-serialization</artifactId>
             <version>${kotlin.version}</version>
           </dependency>
-
         </dependencies>
         <configuration>
           <javaParameters>true</javaParameters>

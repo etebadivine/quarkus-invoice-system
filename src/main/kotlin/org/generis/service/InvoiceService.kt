@@ -15,8 +15,8 @@ interface InvoiceService {
     fun getAllInvoices(): List<InvoiceDto>
 
     fun updateInvoiceStatus(updateInvoiceStatusDto: UpdateInvoiceStatusDto): Invoice
-
-//    fun sendMail(invoice: Invoice)
+    
+    fun getInvoiceByCustomerId(customerId: String): List<InvoiceDto>
 
     fun deleteInvoice(id: String)
 }

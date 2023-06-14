@@ -1,12 +1,9 @@
 package org.generis.service.Impl
 
-import io.quarkus.mailer.Attachment
-import io.quarkus.mailer.Mail
-import io.quarkus.mailer.Mailer
 import jakarta.inject.*
 import jakarta.persistence.EntityManager
+import jakarta.persistence.TypedQuery
 import jakarta.transaction.Transactional
-import jakarta.validation.constraints.Email
 import org.generis.dto.*
 import org.generis.entity.*
 import org.generis.exception.ServiceException
@@ -24,9 +21,6 @@ class InvoiceServiceImpl: InvoiceService {
     @Inject
     var entityManager: EntityManager? = null
 
-//    @Inject
-//    private lateinit var mailer: Mailer
-
 
     override fun createInvoice(createInvoiceDto: CreateInvoiceDto): Invoice {
         // Retrieve the customer based on the customerId from the database
@@ -35,20 +29,21 @@ class InvoiceServiceImpl: InvoiceService {
 
         // Create the Invoice instance
         val invoice = Invoice()
-            invoice.invoiceNumber = invoice.generateInvoiceNumber()
-            invoice.title = createInvoiceDto.title
-            invoice.subHeading = createInvoiceDto.subHeading
-            invoice.dueDate = LocalDate.parse(createInvoiceDto.dueDate, DateTimeFormatter.ofPattern(JacksonUtils.datePattern))
-            invoice.createdDate = LocalDateTime.now()
-            invoice.customerId = customer
-            invoice.tax = createInvoiceDto.tax
-            invoice.discount = createInvoiceDto.discount
-            invoice.currency = createInvoiceDto.currency
-            invoice.subTotal = 0.00
-            invoice.totalAmount = 0.00
+        invoice.invoiceNumber = invoice.generateInvoiceNumber()
+        invoice.title = createInvoiceDto.title
+        invoice.subHeading = createInvoiceDto.subHeading
+        invoice.dueDate =
+            LocalDate.parse(createInvoiceDto.dueDate, DateTimeFormatter.ofPattern(JacksonUtils.datePattern))
+        invoice.createdDate = LocalDateTime.now()
+        invoice.customerId = customer
+        invoice.tax = createInvoiceDto.tax
+        invoice.discount = createInvoiceDto.discount
+        invoice.currency = createInvoiceDto.currency
+        invoice.subTotal = 0.00
+        invoice.totalAmount = 0.00
 
         // Calculate the subtotal and total based on the invoice items
-        var subtotal =  0.00
+        var subtotal = 0.00
         for (itemDto in createInvoiceDto.items) {
             // Retrieve the product based on the productId from the database
             val product = entityManager?.find(Product::class.java, itemDto.productId)
@@ -110,12 +105,18 @@ class InvoiceServiceImpl: InvoiceService {
         return entityManager!!.merge(invoice)
     }
 
-//    override fun sendMail(invoice: Invoice) {
-//        mailer.send(Mail.withText("kofidvyn@gmail.com",
-//            "A simple email from quarkus #${invoice.invoiceNumber}",
-//            "This is my body."));
-//
-//    }
+    override fun getInvoiceByCustomerId(customerId: String): List<InvoiceDto> {
+
+        val query: TypedQuery<Invoice> = entityManager!!.createQuery(
+            "SELECT i FROM Invoice i WHERE i.customerId = :customerId",
+            Invoice::class.java
+        )
+        query.setParameter("customerId", customerId)
+        val results = query.resultList
+
+        return results.map { it.toDto() }
+    }
+
 
     override fun deleteInvoice(id: String) {
         val invoice = entityManager?.find(Invoice::class.java, id)
@@ -130,7 +131,7 @@ class InvoiceServiceImpl: InvoiceService {
             id = this.id,
             title = this.title,
             subHeading = this.subHeading,
-            customerId = this.customerId?.id,
+            customerId = this.customerId?.toDto()?.id,
             invoiceNumber = this.invoiceNumber,
             currency = this.currency,
             items = this.items.map { it.toDto() },
@@ -154,5 +155,18 @@ class InvoiceServiceImpl: InvoiceService {
     }
 
 
+    private fun Customer.toDto(): CustomerDto {
+        return CustomerDto(
+            id = this.id,
+            name = this.name,
+            email = this.email,
+            phoneNumber = this.phoneNumber,
+            country = this.country,
+            city = this.city,
+            taxNumber = this.taxNumber,
+            currency = this.currency
+        )
+
+    }
 }
 
