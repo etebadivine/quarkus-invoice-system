@@ -8,7 +8,6 @@ import org.generis.dto.*
 import org.generis.entity.*
 import org.generis.exception.ServiceException
 import org.generis.service.InvoiceService
-import org.generis.util.JacksonUtils
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -19,12 +18,12 @@ import java.time.format.DateTimeFormatter
 class InvoiceServiceImpl: InvoiceService {
 
     @Inject
-    var entityManager: EntityManager? = null
+    lateinit var entityManager: EntityManager
 
 
     override fun createInvoice(createInvoiceDto: CreateInvoiceDto): Invoice {
         // Retrieve the customer based on the customerId from the database
-        val customer = entityManager?.find(Customer::class.java, createInvoiceDto.customerId)
+        val customer = entityManager.find(Customer::class.java, createInvoiceDto.customerId)
             ?: throw IllegalArgumentException("Invalid customerId")
 
         // Create the Invoice instance
@@ -33,7 +32,7 @@ class InvoiceServiceImpl: InvoiceService {
         invoice.title = createInvoiceDto.title
         invoice.subHeading = createInvoiceDto.subHeading
         invoice.dueDate =
-            LocalDate.parse(createInvoiceDto.dueDate, DateTimeFormatter.ofPattern(JacksonUtils.datePattern))
+            LocalDate.parse(createInvoiceDto.dueDate, DateTimeFormatter.ofPattern("dd-MM-yyyy"))
         invoice.createdDate = LocalDateTime.now()
         invoice.customerId = customer
         invoice.tax = createInvoiceDto.tax
@@ -46,7 +45,7 @@ class InvoiceServiceImpl: InvoiceService {
         var subtotal = 0.00
         for (itemDto in createInvoiceDto.items) {
             // Retrieve the product based on the productId from the database
-            val product = entityManager?.find(Product::class.java, itemDto.productId)
+            val product = entityManager.find(Product::class.java, itemDto.productId)
                 ?: throw IllegalArgumentException("Invalid productId")
 
             // Calculate the total for the invoice item based on the product price and quantity
@@ -80,49 +79,47 @@ class InvoiceServiceImpl: InvoiceService {
         invoice.totalAmount = subtotal + taxAmount - discountAmount
 
         // Save the invoice to the database
-        entityManager!!.persist(invoice)
+        entityManager.persist(invoice)
 
         return invoice
 
     }
 
-    override fun getInvoice(id: String): InvoiceDto? {
-        val invoice = entityManager?.find(Invoice::class.java, id)
-        return invoice?.toDto()
+    override fun getInvoice(id: String): Invoice? {
+        return entityManager.find(Invoice::class.java, id)
     }
 
-    override fun getAllInvoices(): List<InvoiceDto> {
-        val invoices = entityManager?.createQuery("SELECT i FROM Invoice i", Invoice::class.java)?.resultList
-        return invoices?.map { it.toDto() } ?: throw ServiceException(-1, "No invoices found")
+    override fun getAllInvoices(): List<Invoice> {
+        return entityManager.createQuery("SELECT i FROM Invoice i", Invoice::class.java)?.resultList
+            ?: throw ServiceException(-1, "No invoices found")
     }
 
     override fun updateInvoiceStatus(updateInvoiceStatusDto: UpdateInvoiceStatusDto): Invoice {
-        val invoice = entityManager?.find(Invoice::class.java, updateInvoiceStatusDto.invoiceId)
+        val invoice = entityManager.find(Invoice::class.java, updateInvoiceStatusDto.invoiceId)
             ?: throw IllegalArgumentException("Invalid invoiceId")
 
         invoice.status = updateInvoiceStatusDto.status
 
-        return entityManager!!.merge(invoice)
+        return entityManager.merge(invoice)
     }
 
-    override fun getInvoiceByCustomerId(customerId: String): List<InvoiceDto> {
+    override fun getInvoiceByCustomerId(customerId: String): List<Invoice> {
 
-        val query: TypedQuery<Invoice> = entityManager!!.createQuery(
-            "SELECT i FROM Invoice i WHERE i.customerId = :customerId",
+        val query: TypedQuery<Invoice> = entityManager.createQuery(
+            "SELECT i FROM Invoice i WHERE i.customerId.id = :customerId",
             Invoice::class.java
         )
         query.setParameter("customerId", customerId)
-        val results = query.resultList
 
-        return results.map { it.toDto() }
+        return query.resultList
     }
 
 
     override fun deleteInvoice(id: String) {
-        val invoice = entityManager?.find(Invoice::class.java, id)
+        val invoice = entityManager.find(Invoice::class.java, id)
             ?: throw IllegalArgumentException("Invalid invoiceId")
 
-        entityManager!!.remove(invoice)
+        entityManager.remove(invoice)
     }
 
     // Utility method to convert Invoice entity to InvoiceDto
@@ -164,7 +161,8 @@ class InvoiceServiceImpl: InvoiceService {
             country = this.country,
             city = this.city,
             taxNumber = this.taxNumber,
-            currency = this.currency
+            currency = this.currency,
+            createdDate = this.createdDate,
         )
 
     }

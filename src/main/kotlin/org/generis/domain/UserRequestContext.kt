@@ -1,6 +1,5 @@
 package org.generis.domain
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.apache.commons.lang3.StringUtils
 
 
@@ -46,9 +45,6 @@ object UserRequestContext {
         currentOS.set(language)
     }
 
-    override fun toString(): String {
-        return jacksonObjectMapper().writeValueAsString(this)
-    }
 
 
     fun clear() {

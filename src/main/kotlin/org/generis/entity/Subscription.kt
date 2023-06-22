@@ -1,22 +1,15 @@
 package org.generis.entity
 
-import com.fasterxml.jackson.annotation.JsonFormat
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase
 import jakarta.persistence.*
-import kotlinx.serialization.Serializable
-import lombok.*
-import org.generis.enums.SubscriptionFrequency
-import org.generis.util.*
+import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.GenericGenerator
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 
 @Entity
 @Table(name = "subscriptions")
-@Getter
-@Setter
-@ToString
-@Serializable
 class Subscription : PanacheEntityBase() {
     @Id
     @GeneratedValue(generator = "UUID")
@@ -31,19 +24,19 @@ class Subscription : PanacheEntityBase() {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "subscription", cascade = [CascadeType.PERSIST, CascadeType.MERGE], orphanRemoval = true)
     var items: MutableList<SubscriptionItem> = mutableListOf()
 
-    @JsonFormat(pattern = JacksonUtils.dateTimePattern)
-    @Serializable(with = LocalDateSerializer::class)
     @Column(name = "start_date")
     var startDate: LocalDate? = null
 
-    @JsonFormat(pattern = JacksonUtils.dateTimePattern)
-    @Serializable(with = LocalDateSerializer::class)
-    @Column(name = "end_date")
-    var endDate: LocalDate? = null
+    @Column(name = "next_invoiceDate")
+    var nextInvoiceDate: LocalDate? = null
 
-    @Column(name = "subscription_frequency")
-    var frequency: Long? = null
+    @Column(name = "recurring_period")
+    var recurringPeriod: Long? = null
 
     @Column(name = "total_amount")
     var totalAmount: Double? = null
+
+    @CreationTimestamp
+    @Column(name = "created_date")
+    var createdDate: LocalDateTime? = null
 }

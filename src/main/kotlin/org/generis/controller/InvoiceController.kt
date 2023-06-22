@@ -7,6 +7,7 @@ import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
 import org.generis.domain.ApiResponse
 import org.generis.dto.*
+import org.generis.entity.Invoice
 import org.generis.service.InvoiceService
 import org.generis.util.wrapSuccessInResponse
 import org.modelmapper.ModelMapper
@@ -28,13 +29,12 @@ class InvoiceController {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    fun create(@Valid createInvoiceDto: CreateInvoiceDto): ApiResponse<InvoiceDto> {
+    fun create(@Valid createInvoiceDto: CreateInvoiceDto): ApiResponse<Invoice> {
         logger.info("http request: create")
 
         val invoice = invoiceService.createInvoice(createInvoiceDto)
 
-        val invoiceDto = modelMapper.map(invoice, InvoiceDto::class.java)
-        val apiResponse = wrapSuccessInResponse(invoiceDto)
+        val apiResponse = wrapSuccessInResponse(invoice)
 
         logger.info("http response: create: {}", apiResponse)
 
@@ -43,13 +43,13 @@ class InvoiceController {
 
     @GET
     @Path("{id}")
-    fun getInvoiceById(@PathParam("id") id: String): ApiResponse<InvoiceDto?> {
+    fun getInvoiceById(@PathParam("id") id: String): ApiResponse<Invoice?> {
         val invoice = invoiceService.getInvoice(id)
         return wrapSuccessInResponse(invoice)
     }
 
     @GET
-    fun getAllInvoices(): ApiResponse<List<InvoiceDto>> {
+    fun getAllInvoices(): ApiResponse<List<Invoice>> {
         val invoices = invoiceService.getAllInvoices()
         return wrapSuccessInResponse(invoices)
     }
@@ -74,7 +74,7 @@ class InvoiceController {
     @GET
     @Path("/{customerId}")
     @Produces(MediaType.APPLICATION_JSON)
-    fun getInvoiceByCustomerId(@PathParam("customerId") customerId: String): ApiResponse<List<InvoiceDto>> {
+    fun getInvoiceByCustomerId(@PathParam("customerId") customerId: String): ApiResponse<List<Invoice>> {
         val invoices = invoiceService.getInvoiceByCustomerId(customerId)
         return wrapSuccessInResponse(invoices)
     }

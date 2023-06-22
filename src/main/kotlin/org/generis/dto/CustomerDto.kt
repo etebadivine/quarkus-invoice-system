@@ -1,10 +1,10 @@
 package org.generis.dto
 
-import kotlinx.serialization.Serializable
 import org.generis.enums.Currency
+import org.hibernate.annotations.CreationTimestamp
+import java.time.LocalDateTime
 
 
-@Serializable
 data class CustomerDto (
     var id: String?,
     var name: String?,
@@ -14,8 +14,10 @@ data class CustomerDto (
     var city: String?,
     var taxNumber: String?,
     var currency: Currency?,
+    var createdDate: LocalDateTime?
 ) {
     constructor() : this(
+        null,
         null,
         null,
         null,

@@ -1,11 +1,9 @@
 package org.generis.dto
 
-import kotlinx.serialization.Serializable
 import lombok.Data
 import org.generis.enums.Currency
 
 @Data
-@Serializable
 data class UpdateCustomerDto(
     var name: String? = null,
     var email: String? = null,

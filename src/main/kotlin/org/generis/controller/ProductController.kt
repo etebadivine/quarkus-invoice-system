@@ -15,9 +15,9 @@ import org.modelmapper.ModelMapper
 import org.slf4j.LoggerFactory
 
 
-//@RolesAllowed("ROLE_ADMIN")
 
 @Path("products")
+//@RolesAllowed("ROLE_ADMIN")
 @Produces(MediaType.APPLICATION_JSON)
 class ProductController {
 
@@ -30,13 +30,12 @@ class ProductController {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    fun create(@Valid createProductDto: CreateProductDto): ApiResponse<ProductDto> {
+    fun create(@Valid createProductDto: CreateProductDto): ApiResponse<Product> {
         logger.info("http request: create")
 
         val product = productService.createProduct(createProductDto)
 
-        val productDto = modelMapper.map(product, ProductDto::class.java)
-        val apiResponse = wrapSuccessInResponse(productDto)
+        val apiResponse = wrapSuccessInResponse(product)
 
         logger.info("http response: create: {}", apiResponse)
 
@@ -67,10 +66,9 @@ class ProductController {
     }
 
     @GET
-    fun getAllProducts(): ApiResponse<List<ProductDto>> {
+    fun getAllProducts(): ApiResponse<List<Product>> {
         val products = productService.getAllProducts()
-        val productDto = products.map { product -> mapProductToDto(product) }
-        return wrapSuccessInResponse(productDto)
+        return wrapSuccessInResponse(products)
     }
 
     private fun mapProductToDto(product: Product): ProductDto {
@@ -80,7 +78,7 @@ class ProductController {
             productName = product.productName,
             description = product.description,
             isRecurring = product.isRecurring,
-            recurringPeriod = product.recurringPeriod,
+            createdDate = product.createdDate
         )
     }
 

@@ -6,13 +6,11 @@ import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.transaction.Transactional
 import org.generis.dto.*
-import org.generis.entity.Customer
 import org.generis.entity.Product
 import org.generis.enums.ProductState
 import org.generis.exception.ServiceException
 import org.generis.service.ProductService
 import org.modelmapper.ModelMapper
-import org.slf4j.LoggerFactory
 
 
 @Singleton
@@ -20,28 +18,26 @@ import org.slf4j.LoggerFactory
 class ProductServiceImpl: ProductService {
 
     @Inject
-    var entityManager: EntityManager? = null
+    lateinit var entityManager: EntityManager
 
     private val modelMapper = ModelMapper()
 
     override fun getProduct(id: String): Product {
-        return entityManager?.find(Product::class.java, id) ?:
+        return entityManager.find(Product::class.java, id) ?:
         throw ServiceException(-1, "No product found with id $id")
     }
 
     override fun getByProductName(productName: String): Product? {
-        val query: TypedQuery<Product> = entityManager!!.createQuery(
+        val query: TypedQuery<Product> = entityManager.createQuery(
             "SELECT p FROM Product p WHERE p.productName = :productName",
             Product::class.java
         )
         query.setParameter("productName", productName)
         return query.singleResult
-
     }
 
-
     override fun geProductByType(productState: ProductState): List<Product> {
-        val query: TypedQuery<Product> = entityManager!!.createQuery(
+        val query: TypedQuery<Product> = entityManager.createQuery(
             "SELECT p FROM Product p WHERE p.isRecurring = :isRecurring",
             Product::class.java
         )
@@ -50,8 +46,8 @@ class ProductServiceImpl: ProductService {
     }
 
     override fun getAllProducts(): List<Product> {
-        val query = entityManager?.createQuery("SELECT p FROM Product p", Product::class.java)
-        return query?.resultList ?: throw ServiceException(-1, "No products found")
+        val query = entityManager.createQuery("SELECT p FROM Product p", Product::class.java)
+        return query.resultList ?: throw ServiceException(-1, "No products found")
     }
 
     override fun createProduct(createProductDto: CreateProductDto): Product {
@@ -61,22 +57,21 @@ class ProductServiceImpl: ProductService {
     }
 
     override fun updateProduct(id: String?, updateProductDto: UpdateProductDto): Product {
-        val product = entityManager!!.find(Product::class.java, id)
+        val product = entityManager.find(Product::class.java, id)
             ?:  throw ServiceException(-1, "No product found with id $id")
 
         updateProductDto.productName?.let { product.productName = it }
         updateProductDto.unitPrice?.let { product.unitPrice = it }
         updateProductDto.description?.let { product.description = it }
         updateProductDto.isRecurring?.let { product.isRecurring = it }
-        updateProductDto.recurringPeriod?.let { product.recurringPeriod = it }
 
         return product
     }
 
     override fun deleteProductById(id: String){
-        val product = entityManager?.find(Product::class.java, id)
+        val product = entityManager.find(Product::class.java, id)
         product?.let {
-            entityManager?.remove(it)
+            entityManager.remove(it)
         }
     }
 }

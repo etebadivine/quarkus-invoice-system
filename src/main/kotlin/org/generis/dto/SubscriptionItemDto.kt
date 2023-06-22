@@ -1,9 +1,6 @@
 package org.generis.dto
 
-import kotlinx.serialization.Serializable
 
-
-@Serializable
 data class SubscriptionItemDto(
     var id:String?= null,
     var productId:String?,
@@ -11,11 +8,11 @@ data class SubscriptionItemDto(
     var totalAmount: Double? = null
 )
 {
-//    constructor() : this(
-//        null,
-//        null,
-//        null,
-//        null
-//    )
+    constructor() : this(
+        null,
+        null,
+        null,
+        null
+    )
 }
 

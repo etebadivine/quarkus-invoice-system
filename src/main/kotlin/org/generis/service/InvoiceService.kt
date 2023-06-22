@@ -10,13 +10,13 @@ interface InvoiceService {
 
     fun createInvoice(createInvoiceDto: CreateInvoiceDto): Invoice
 
-    fun getInvoice(id: String): InvoiceDto?
+    fun getInvoice(id: String): Invoice?
 
-    fun getAllInvoices(): List<InvoiceDto>
+    fun getAllInvoices(): List<Invoice>
 
     fun updateInvoiceStatus(updateInvoiceStatusDto: UpdateInvoiceStatusDto): Invoice
     
-    fun getInvoiceByCustomerId(customerId: String): List<InvoiceDto>
+    fun getInvoiceByCustomerId(customerId: String): List<Invoice>
 
     fun deleteInvoice(id: String)
 }

@@ -9,29 +9,31 @@ import org.generis.dto.*
 import org.generis.entity.Customer
 import org.generis.service.CustomerService
 import org.generis.util.wrapSuccessInResponse
+//import org.keycloak.admin.client.Keycloak
 import org.modelmapper.ModelMapper
 import org.slf4j.LoggerFactory
 
 
 @Path("customers")
+@Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 class CustomerController {
 
     private val logger = LoggerFactory.getLogger(CustomerController::class.java)
     private val modelMapper = ModelMapper()
 
+//    @Inject
+//    lateinit var keycloak : Keycloak
+
     @Inject
     lateinit var customerService: CustomerService
-
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    fun create(@Valid createCustomerDto:CreateCustomerDto): ApiResponse<CustomerDto> {
+    fun create(@Valid createCustomerDto:CreateCustomerDto): ApiResponse<Customer> {
         logger.info("http request: create")
 
         val customer = customerService.createCustomer(createCustomerDto)
 
-        val customerDto = modelMapper.map(customer, CustomerDto::class.java)
-        val apiResponse = wrapSuccessInResponse(customerDto)
+        val apiResponse = wrapSuccessInResponse(customer)
 
         logger.info("http response: create: {}", apiResponse)
 
@@ -55,10 +57,9 @@ class CustomerController {
     }
 
     @GET
-    fun getAllCustomers(): ApiResponse<List<CustomerDto>> {
+    fun getAllCustomers(): ApiResponse<List<Customer>> {
         val customers = customerService.getAllCustomers()
-        val customerDto = customers.map { customer -> mapCustomerToDto(customer) }
-        return wrapSuccessInResponse(customerDto)
+        return wrapSuccessInResponse(customers)
     }
 
     private fun mapCustomerToDto(customer: Customer): CustomerDto {
@@ -70,7 +71,8 @@ class CustomerController {
             country = customer.country,
             city = customer.city,
             taxNumber = customer.taxNumber,
-            currency = customer.currency
+            currency = customer.currency,
+            createdDate = customer.createdDate
         )
     }
 
@@ -81,4 +83,10 @@ class CustomerController {
         return wrapSuccessInResponse(true)
     }
 
+//    @GET
+//    @Path("/keycloak-users")
+//    fun getUsers(): Response {
+//        val users = keycloak.realm("master").users()
+//        return Response.ok(users).build()
+//    }
 }

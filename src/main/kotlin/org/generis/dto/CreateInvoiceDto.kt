@@ -1,10 +1,8 @@
 package org.generis.dto
 
-import kotlinx.serialization.Serializable
 import org.generis.enums.Currency
 
 
-@Serializable
 data class CreateInvoiceDto(
     var title: String? = null ,
     var subHeading: String? = null,

@@ -1,8 +1,9 @@
 package org.generis.service
 
+import jakarta.ws.rs.core.Response
+import org.generis.config.RecurringMail
 import org.generis.dto.CreateSubscriptionDto
 import org.generis.dto.SubscriptionDto
-import org.generis.entity.RecurringInvoice
 import org.generis.entity.Subscription
 
 interface SubscriptionService {
@@ -11,7 +12,17 @@ interface SubscriptionService {
 
     fun getSubscription(id: String): Subscription?
 
-    fun getAllSubscriptions(): List<SubscriptionDto>
+    fun sendInvoice(subscription: Subscription, recurringMail: RecurringMail)
+
+
+    fun updateNextInvoiceDate(subscription: Subscription)
+
+    fun getAllSubscriptions(): List<Subscription>
+
+    fun updateSubscription(subscription: Subscription)
+
+    fun getAllActiveSubscriptions(): List<Subscription>
+
 
 
 }

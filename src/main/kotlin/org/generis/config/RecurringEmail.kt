@@ -1,126 +1,114 @@
 package org.generis.config
 
-
-import io.quarkus.mailer.Attachment
-import io.quarkus.mailer.Mail
-import io.quarkus.mailer.Mailer
-import io.quarkus.mailer.reactive.ReactiveMailer
 import io.quarkus.scheduler.Scheduled
-import io.quarkus.scheduler.Scheduler
 import jakarta.inject.Inject
-
 import jakarta.inject.Singleton
-import jakarta.transaction.Transactional
-import jakarta.ws.rs.PathParam
-import org.apache.pdfbox.pdmodel.PDDocument
-import org.apache.pdfbox.pdmodel.PDPage
-import org.apache.pdfbox.pdmodel.PDPageContentStream
-import org.apache.pdfbox.pdmodel.common.PDRectangle
-import org.apache.pdfbox.pdmodel.font.PDType1Font
-import org.generis.dto.InvoiceDto
-import org.generis.dto.SubscriptionDto
-import org.generis.entity.Customer
-import org.generis.service.CustomerService
 import org.generis.service.SubscriptionService
-import java.io.ByteArrayOutputStream
-
+import java.time.LocalDateTime
 
 
 @Singleton
 class RecurringEmail(
     private val subscriptionService: SubscriptionService,
-    private val customerService: CustomerService,
-    private val mailer: Mailer
-)
-{
-     fun generateRecurringInvoice(customer: Customer, subscriptions: List<SubscriptionDto>): ByteArray {
-        val document = PDDocument()
-        val page = PDPage(PDRectangle.A4)
-        document.addPage(page)
+    private val recurringMail: RecurringMail
+) {
 
-        val contentStream = PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, true, true)
-        contentStream.beginText()
-        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12f)
-        contentStream.newLineAtOffset(50f, 700f)
+//    "*/3 * * * * ?"
+//    "0 0 7 * * ?"
 
-        contentStream.newLineAtOffset(50f, 700f)
-        contentStream.showText("Customer Name: ${customer.name}")
-        contentStream.newLine()
-        contentStream.showText("Email: ${customer.email}")
-        contentStream.newLine()
+//    @Scheduled(cron = "*/30 * * * * ?")
+    fun sendRecurringInvoices() {
+        val currentDateTime = LocalDateTime.now()
+        val currentDate = currentDateTime.toLocalDate()
 
-        subscriptions.forEach { subscription ->
-            contentStream.showText("Product: ${subscription.items} - Price: ${subscription.totalAmount}")
+        val subscriptions = subscriptionService.getAllSubscriptions()
+
+        for (subscription in subscriptions) {
+            val nextInvoiceDate = subscription.nextInvoiceDate
+            if (nextInvoiceDate!!.isEqual(currentDate)) {
+                subscriptionService.sendInvoice(subscription, recurringMail)
+                subscriptionService.updateNextInvoiceDate(subscription)
+                subscriptionService.updateSubscription(subscription)
+            }
         }
-
-        val outputStream = ByteArrayOutputStream()
-        document.save(outputStream)
-        document.close()
-
-        return outputStream.toByteArray()
-    }
-
-
-    fun generateInvoice(customerId: String, invoice: List<InvoiceDto>): ByteArray {
-        val customer = customerService.getCustomer(customerId)
-
-        val document = PDDocument()
-        val page = PDPage(PDRectangle.A4)
-        document.addPage(page)
-
-        val contentStream = PDPageContentStream(document, page, PDPageContentStream.AppendMode.APPEND, true, true)
-        contentStream.beginText()
-        contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12f)
-        contentStream.newLineAtOffset(50f, 700f)
-
-        contentStream.newLineAtOffset(50f, 700f)
-        contentStream.showText("Customer Name: ${customer?.name}")
-        contentStream.newLine()
-        contentStream.showText("Email: ${customer?.email}")
-        contentStream.newLine()
-
-        invoice.forEach { invoice ->
-            contentStream.showText("Product: ${invoice.items} - Price: ${invoice.totalAmount}")
-        }
-
-        val outputStream = ByteArrayOutputStream()
-        document.save(outputStream)
-        document.close()
-
-        return outputStream.toByteArray()
     }
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//    private fun addSubscription(subscription: SubscriptionDto) {
+//        subscriptions.add(subscription)
+//    }
+
+//    @Scheduled(cron = "0 0 9 ? * MON") // Schedule to run every Monday at 9 AM
+//    @Scheduled(cron = "*/1 * * * * ?") // Schedule to run every Monday at 9 AM
+//    fun sendRecurringEmails() {
+//        val currentDate = LocalDate.now()
 //
-////    (cron = "0 0 0 1 * ?")
-//    @Scheduled(cron = "*/5 * * * * ?") // Run at 12:00 AM on the 1st day of every month
-//    @Transactional
-//    fun generateAndSendInvoices() {
-//        val subscriptions = subscriptionService.getAllSubscriptions()
-//        val customers = customerService.getAllCustomers()
+//        subscriptions.forEach { subscription ->
+//            val startDate = subscription.startDate
+//            val endDate = subscription.nextInvoiceDate
+//            val recurringPeriod = subscription.recurringPeriod
 //
-//        customers.forEach { customer ->
-//            val customerSubscriptions = subscriptions.filter { it.customerId == customer.id }
-//            if (customerSubscriptions.isNotEmpty()) {
-//                val invoicePdf = generateInvoice(customer, customerSubscriptions)
-//                sendInvoiceByEmail(customer, invoicePdf)
+//            if (startDate != null && endDate != null && recurringPeriod != null) {
+//                if (currentDate.isAfter(startDate) && currentDate.isBefore(endDate)) {
+//                    val customerEmail = subscription.customerId
+//                    val customer = customerService.getCustomer(customerEmail!!)
+//
+//                    val productName = subscription.items
+//                    val product = productService.getProduct(productName!!.toString())
+//
+//                    if (customer != null && product != null) {
+//                        val emailContent =
+//                            "Dear customer, thank you for your subscription to ${product.productName}.\\n\\n\" +" +
+//                                    "The total amount due is ${subscription.totalAmount}."
+//                        mailer.send(Mail.withText(customer.email, emailContent, "Your Invoice."));
+//
+//                        val nextRecurringDate = currentDate.plusDays(recurringPeriod)
+//                        if (nextRecurringDate.isBefore(endDate)) {
+//                            subscription.startDate = nextRecurringDate
+//                            addSubscription(subscription)
+//                        }
+//                    }
+//                }
 //            }
 //        }
 //    }
-
-   fun sendInvoiceByEmail(customerId: String, invoicePdf: ByteArray) {
-
-       val customer = customerService.getCustomer(customerId)
-
-        val emailContent = "Dear customer, here is your monthly invoice in pdf $invoicePdf"
-        val recipientEmail = customer?.email ?: "etebadivine358@gmail.com"
-
-        mailer.send(Mail.withText(recipientEmail, emailContent, "Your Invoice."));
-
-        println("Email sent successfully!")
-    }
 }
+
 
 
 

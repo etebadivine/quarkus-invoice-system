@@ -1,23 +1,15 @@
 package org.generis.entity
 
-import com.fasterxml.jackson.annotation.JsonFormat
-import lombok.*
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase
 import jakarta.persistence.*
-import kotlinx.serialization.Serializable
 import org.generis.enums.ProductState
-import org.generis.util.JacksonUtils
-import org.generis.util.LocalDateTimeSerializer
+import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.GenericGenerator
 import java.time.LocalDateTime
 
 
 @Entity
 @Table(name = "products")
-@Getter
-@Setter
-@ToString
-@Serializable
 class Product : PanacheEntityBase() {
     @Id
     @GeneratedValue(generator = "UUID")
@@ -38,12 +30,8 @@ class Product : PanacheEntityBase() {
     @Enumerated(EnumType.STRING)
     var isRecurring: ProductState? = null
 
-    @Column(name = "recurring_period")
-    var recurringPeriod: Long? = null
-
+    @CreationTimestamp
     @Column(name = "created_date")
-    @JsonFormat(pattern = JacksonUtils.dateTimePattern)
-    @Serializable(with = LocalDateTimeSerializer::class)
-    var createdDate: LocalDateTime = LocalDateTime.now()
+    var createdDate: LocalDateTime? = null
 }
 

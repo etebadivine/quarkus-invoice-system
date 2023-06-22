@@ -1,23 +1,15 @@
 package org.generis.entity
 
-import com.fasterxml.jackson.annotation.JsonFormat
-import lombok.*
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase
 import jakarta.persistence.*
-import kotlinx.serialization.Serializable
 import org.generis.enums.Currency
-import org.generis.util.JacksonUtils
-import org.generis.util.LocalDateTimeSerializer
+import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.GenericGenerator
 import java.time.LocalDateTime
 
 
 @Entity
 @Table(name = "customers")
-@Getter
-@Setter
-@ToString
-@Serializable
 class Customer : PanacheEntityBase() {
     @Id
     @GeneratedValue(generator = "UUID")
@@ -47,9 +39,8 @@ class Customer : PanacheEntityBase() {
     @Enumerated(EnumType.STRING)
     var currency: Currency? = null
 
+    @CreationTimestamp
     @Column(name = "created_date")
-    @JsonFormat(pattern = JacksonUtils.dateTimePattern)
-    @Serializable(with = LocalDateTimeSerializer::class)
-    var createdDate: LocalDateTime = LocalDateTime.now()
+    var createdDate: LocalDateTime? = null
 }
 

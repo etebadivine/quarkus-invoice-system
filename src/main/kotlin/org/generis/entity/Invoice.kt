@@ -1,15 +1,10 @@
 package org.generis.entity
 
-import com.fasterxml.jackson.annotation.JsonFormat
-import lombok.*
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase
 import jakarta.persistence.*
-import kotlinx.serialization.Serializable
-import org.generis.enums.*
 import org.generis.enums.Currency
-import org.generis.util.JacksonUtils
-import org.generis.util.LocalDateSerializer
-import org.generis.util.LocalDateTimeSerializer
+import org.generis.enums.InvoiceStatus
+import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.GenericGenerator
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -18,10 +13,6 @@ import java.time.format.DateTimeFormatter
 
 @Entity
 @Table(name = "invoices")
-@Getter
-@Setter
-@ToString
-@Serializable
 class Invoice : PanacheEntityBase() {
     @Id
     @GeneratedValue(generator = "UUID")
@@ -53,14 +44,11 @@ class Invoice : PanacheEntityBase() {
     @Enumerated(EnumType.STRING)
     var status: InvoiceStatus = InvoiceStatus.CREATED
 
+    @CreationTimestamp
     @Column(name = "created_date")
-    @JsonFormat(pattern = JacksonUtils.dateTimePattern)
-    @Serializable(with = LocalDateTimeSerializer::class)
-    var createdDate: LocalDateTime = LocalDateTime.now()
+    var createdDate: LocalDateTime? = null
 
     @Column(name = "due_date")
-    @JsonFormat(pattern = JacksonUtils.dateTimePattern)
-    @Serializable(with = LocalDateSerializer::class)
     var dueDate: LocalDate? = null
 
     @Column(name = "tax")

@@ -1,9 +1,5 @@
 package org.generis.dto
 
-import kotlinx.serialization.Serializable
-
-
-@Serializable
 data class InvoiceItemDto(
     var id:String?= null,
     var productId:String?,

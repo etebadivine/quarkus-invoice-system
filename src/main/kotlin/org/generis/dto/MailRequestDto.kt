@@ -1,9 +1,5 @@
 package org.generis.dto
 
-import kotlinx.serialization.Serializable
-
-
-@Serializable
 data class MailRequestDto (
     val subject: String,
     val message: String,
@@ -27,7 +23,6 @@ data class MailRequestDto (
     }
 }
 
-@Serializable
 data class MailResponseDto(
     val msg: String,
     val code: String
