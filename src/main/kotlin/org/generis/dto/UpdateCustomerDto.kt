@@ -1,7 +1,6 @@
 package org.generis.dto
 
 import lombok.Data
-import org.generis.enums.Currency
 
 @Data
 data class UpdateCustomerDto(
@@ -11,5 +10,5 @@ data class UpdateCustomerDto(
     var country: String? = null,
     var city: String? = null,
     var taxNumber: String? = null,
-    var currency: Currency? = null
+    var currency: String? = null
 )

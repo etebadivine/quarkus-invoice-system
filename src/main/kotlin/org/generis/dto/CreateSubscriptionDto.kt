@@ -5,5 +5,7 @@ data class CreateSubscriptionDto(
     var items: List<SubscriptionItemDto>,
     var startDate: String,
     var recurringPeriod: Long?,
+    var tax: Double? = 0.00,
+    var discount: Double? = 0.00,
     var totalAmount: Double? = null
 )

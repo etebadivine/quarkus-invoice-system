@@ -9,6 +9,7 @@ interface CurrencyService {
     fun createCurrency(createCurrencyDto: CreateCurrencyDto): Currency
 
     fun getCurrency(id: String): Currency?
+    fun getAllCurrencies(): List<Currency>
 
     fun updateExchangeRate(id: String?,updateCurrencyDto: UpdateCurrencyDto): Currency
 

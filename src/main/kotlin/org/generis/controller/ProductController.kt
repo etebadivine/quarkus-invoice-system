@@ -71,17 +71,6 @@ class ProductController {
         return wrapSuccessInResponse(products)
     }
 
-    private fun mapProductToDto(product: Product): ProductDto {
-        return ProductDto(
-            id = product.id,
-            unitPrice = product.unitPrice,
-            productName = product.productName,
-            description = product.description,
-            isRecurring = product.isRecurring,
-            createdDate = product.createdDate
-        )
-    }
-
     @DELETE
     @Path("/{id}")
     fun deleteProductById(@PathParam("id") id: String): ApiResponse<Boolean> {

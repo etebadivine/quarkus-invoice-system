@@ -2,7 +2,6 @@ package org.generis.entity
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase
 import jakarta.persistence.*
-import org.generis.enums.Currency
 import org.generis.enums.InvoiceStatus
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.GenericGenerator
@@ -33,8 +32,8 @@ class Invoice : PanacheEntityBase() {
     @Column(name = "invoice_number")
     var invoiceNumber: String? = null
 
-    @Column(name = "transaction_currency")
-    @Enumerated(EnumType.STRING)
+    @JoinColumn(name = "transaction_currency")
+    @OneToOne(fetch = FetchType.EAGER)
     var currency: Currency? = null
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "invoice", cascade = [CascadeType.PERSIST, CascadeType.MERGE], orphanRemoval = true)

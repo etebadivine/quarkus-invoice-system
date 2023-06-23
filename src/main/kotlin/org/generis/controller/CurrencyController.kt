@@ -7,6 +7,7 @@ import jakarta.ws.rs.core.MediaType
 import org.generis.domain.ApiResponse
 import org.generis.dto.CreateCurrencyDto
 import org.generis.entity.Currency
+import org.generis.entity.Customer
 import org.generis.service.CurrencyService
 import org.generis.util.wrapSuccessInResponse
 import org.slf4j.LoggerFactory
@@ -40,6 +41,12 @@ class CurrencyController {
     fun getCurrency(@PathParam("id") id: String): ApiResponse<Currency?> {
         val currency = currencyService?.getCurrency(id)
         return wrapSuccessInResponse(currency)
+    }
+
+    @GET
+    fun getAllCurrencies(): ApiResponse<List<Currency>> {
+        val currencies = currencyService.getAllCurrencies()
+        return wrapSuccessInResponse(currencies)
     }
 
 }

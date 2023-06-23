@@ -1,7 +1,6 @@
 package org.generis.config
 
 import io.quarkus.scheduler.Scheduled
-import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import org.generis.service.SubscriptionService
 import java.time.LocalDateTime
@@ -15,8 +14,10 @@ class RecurringEmail(
 
 //    "*/3 * * * * ?"
 //    "0 0 7 * * ?"
+//    "0 50 14 * * ?"
 
-//    @Scheduled(cron = "*/30 * * * * ?")
+
+    @Scheduled(cron = "0 50 14 * * ?")
     fun sendRecurringInvoices() {
         val currentDateTime = LocalDateTime.now()
         val currentDate = currentDateTime.toLocalDate()

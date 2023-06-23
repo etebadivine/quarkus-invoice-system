@@ -2,10 +2,13 @@ package org.generis.entity
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase
 import jakarta.persistence.*
+import org.generis.enums.InvoiceStatus
+import org.generis.enums.SubscriptionState
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.GenericGenerator
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 
 @Entity
@@ -16,6 +19,9 @@ class Subscription : PanacheEntityBase() {
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id")
     var id: String? = null
+
+    @Column(name = "subscription_number")
+    var subscriptionNumber: String? = null
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id")
@@ -33,10 +39,27 @@ class Subscription : PanacheEntityBase() {
     @Column(name = "recurring_period")
     var recurringPeriod: Long? = null
 
+    @Column(name = "subscription_status")
+    @Enumerated(EnumType.STRING)
+    var status: SubscriptionState = SubscriptionState.ACTIVE
+
+    @Column(name = "tax")
+    var tax: Double? = 0.00
+
+    @Column(name = "discount")
+    var discount: Double? = 0.00
+
     @Column(name = "total_amount")
     var totalAmount: Double? = null
 
     @CreationTimestamp
     @Column(name = "created_date")
     var createdDate: LocalDateTime? = null
+
+    fun generateSubscriptionNumber(): String {
+        val currentDateTime = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss")
+        return "SUB-${currentDateTime.format(formatter)}"
+
+    }
 }

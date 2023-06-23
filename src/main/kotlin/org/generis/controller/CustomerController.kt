@@ -5,12 +5,11 @@ import jakarta.validation.Valid
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
 import org.generis.domain.ApiResponse
-import org.generis.dto.*
+import org.generis.dto.CreateCustomerDto
+import org.generis.dto.UpdateCustomerDto
 import org.generis.entity.Customer
 import org.generis.service.CustomerService
 import org.generis.util.wrapSuccessInResponse
-//import org.keycloak.admin.client.Keycloak
-import org.modelmapper.ModelMapper
 import org.slf4j.LoggerFactory
 
 
@@ -20,10 +19,6 @@ import org.slf4j.LoggerFactory
 class CustomerController {
 
     private val logger = LoggerFactory.getLogger(CustomerController::class.java)
-    private val modelMapper = ModelMapper()
-
-//    @Inject
-//    lateinit var keycloak : Keycloak
 
     @Inject
     lateinit var customerService: CustomerService
@@ -62,31 +57,10 @@ class CustomerController {
         return wrapSuccessInResponse(customers)
     }
 
-    private fun mapCustomerToDto(customer: Customer): CustomerDto {
-        return CustomerDto(
-            id = customer.id,
-            name = customer.name,
-            email = customer.email,
-            phoneNumber = customer.phoneNumber,
-            country = customer.country,
-            city = customer.city,
-            taxNumber = customer.taxNumber,
-            currency = customer.currency,
-            createdDate = customer.createdDate
-        )
-    }
-
     @DELETE
     @Path("/{id}")
     fun deleteCustomerById(@PathParam("id") id: String): ApiResponse<Boolean> {
         customerService.deleteCustomerById(id)
         return wrapSuccessInResponse(true)
     }
-
-//    @GET
-//    @Path("/keycloak-users")
-//    fun getUsers(): Response {
-//        val users = keycloak.realm("master").users()
-//        return Response.ok(users).build()
-//    }
 }

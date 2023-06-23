@@ -20,11 +20,13 @@ class InvoiceServiceImpl: InvoiceService {
     @Inject
     lateinit var entityManager: EntityManager
 
-
     override fun createInvoice(createInvoiceDto: CreateInvoiceDto): Invoice {
         // Retrieve the customer based on the customerId from the database
         val customer = entityManager.find(Customer::class.java, createInvoiceDto.customerId)
             ?: throw IllegalArgumentException("Invalid customerId")
+
+        val currency = entityManager!!.find(Currency::class.java, createInvoiceDto.currency)
+            ?:  throw ServiceException(-1, "No currency found")
 
         // Create the Invoice instance
         val invoice = Invoice()
@@ -37,7 +39,7 @@ class InvoiceServiceImpl: InvoiceService {
         invoice.customerId = customer
         invoice.tax = createInvoiceDto.tax
         invoice.discount = createInvoiceDto.discount
-        invoice.currency = createInvoiceDto.currency
+        invoice.currency = currency
         invoice.subTotal = 0.00
         invoice.totalAmount = 0.00
 
@@ -49,7 +51,7 @@ class InvoiceServiceImpl: InvoiceService {
                 ?: throw IllegalArgumentException("Invalid productId")
 
             // Calculate the total for the invoice item based on the product price and quantity
-            val itemTotal = product.unitPrice?.times(itemDto.quantity!!)?.times(createInvoiceDto.currency.exchangeRate)
+            val itemTotal = product.unitPrice?.times(itemDto.quantity!!)?.times(currency.exchangeRate!!)
 
             // Create the InvoiceItem instance
             val invoiceItem = InvoiceItem()
@@ -120,51 +122,6 @@ class InvoiceServiceImpl: InvoiceService {
             ?: throw IllegalArgumentException("Invalid invoiceId")
 
         entityManager.remove(invoice)
-    }
-
-    // Utility method to convert Invoice entity to InvoiceDto
-    private fun Invoice.toDto(): InvoiceDto {
-        return InvoiceDto(
-            id = this.id,
-            title = this.title,
-            subHeading = this.subHeading,
-            customerId = this.customerId?.toDto()?.id,
-            invoiceNumber = this.invoiceNumber,
-            currency = this.currency,
-            items = this.items.map { it.toDto() },
-            status = this.status,
-            createdDate = this.createdDate,
-            dueDate = this.dueDate,
-            tax = this.tax,
-            discount = this.discount,
-            subTotal = this.subTotal,
-            totalAmount = this.totalAmount
-        )
-    }
-
-    private fun InvoiceItem.toDto(): InvoiceItemDto {
-        return InvoiceItemDto(
-            id = this.id,
-            productId = this.productId?.id,
-            quantity = this.quantity,
-            totalAmount = this.totalAmount
-        )
-    }
-
-
-    private fun Customer.toDto(): CustomerDto {
-        return CustomerDto(
-            id = this.id,
-            name = this.name,
-            email = this.email,
-            phoneNumber = this.phoneNumber,
-            country = this.country,
-            city = this.city,
-            taxNumber = this.taxNumber,
-            currency = this.currency,
-            createdDate = this.createdDate,
-        )
-
     }
 }
 

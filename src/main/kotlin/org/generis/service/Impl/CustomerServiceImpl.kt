@@ -7,6 +7,7 @@ import jakarta.persistence.TypedQuery
 import jakarta.transaction.Transactional
 import org.generis.dto.CreateCustomerDto
 import org.generis.dto.UpdateCustomerDto
+import org.generis.entity.Currency
 import org.generis.entity.Customer
 import org.generis.entity.Product
 import org.generis.exception.ServiceException
@@ -46,6 +47,12 @@ class CustomerServiceImpl: CustomerService {
 
     override fun createCustomer(createCustomerDto: CreateCustomerDto): Customer {
         val customer = modelMapper.map(createCustomerDto, Customer::class.java)
+
+        val currency = entityManager!!.find(Currency::class.java, createCustomerDto.currency)
+            ?:  throw ServiceException(-1, "No currency found")
+
+        customer.currency =  currency
+
         customer.persist()
         return customer
     }
@@ -54,13 +61,16 @@ class CustomerServiceImpl: CustomerService {
         val customer = entityManager!!.find(Customer::class.java, id)
             ?:  throw ServiceException(-1, "No customer found with id $id")
 
+        val currency = entityManager!!.find(Currency::class.java, id)
+            ?:  throw ServiceException(-1, "No currency found with id $id")
+
         updateCustomerDto.name?.let { customer.name = it }
         updateCustomerDto.email?.let { customer.email = it }
         updateCustomerDto.phoneNumber?.let { customer.phoneNumber = it }
         updateCustomerDto.city?.let { customer.city = it }
         updateCustomerDto.country?.let { customer.country = it }
         updateCustomerDto.taxNumber?.let { customer.taxNumber = it }
-        updateCustomerDto.currency?.let { customer.currency = it }
+        updateCustomerDto.currency?.let { currency.currencyName = it }
 
         return customer
     }

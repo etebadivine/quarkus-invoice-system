@@ -1,7 +1,6 @@
 package org.generis.service
 
 import org.generis.dto.CreateInvoiceDto
-import org.generis.dto.InvoiceDto
 import org.generis.dto.UpdateInvoiceStatusDto
 import org.generis.entity.Invoice
 

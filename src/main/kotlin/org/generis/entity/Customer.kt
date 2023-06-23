@@ -2,7 +2,6 @@ package org.generis.entity
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase
 import jakarta.persistence.*
-import org.generis.enums.Currency
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.GenericGenerator
 import java.time.LocalDateTime
@@ -35,8 +34,8 @@ class Customer : PanacheEntityBase() {
     @Column(name = "tax_number")
     var taxNumber: String? = null
 
-    @Column(name = "transaction_currency")
-    @Enumerated(EnumType.STRING)
+    @JoinColumn(name = "transaction_currency")
+    @OneToOne(fetch = FetchType.EAGER)
     var currency: Currency? = null
 
     @CreationTimestamp

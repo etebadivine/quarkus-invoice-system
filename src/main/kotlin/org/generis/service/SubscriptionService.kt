@@ -1,9 +1,7 @@
 package org.generis.service
 
-import jakarta.ws.rs.core.Response
 import org.generis.config.RecurringMail
 import org.generis.dto.CreateSubscriptionDto
-import org.generis.dto.SubscriptionDto
 import org.generis.entity.Subscription
 
 interface SubscriptionService {

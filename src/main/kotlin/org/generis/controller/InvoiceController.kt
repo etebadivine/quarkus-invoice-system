@@ -56,10 +56,10 @@ class InvoiceController {
 
     @PUT
     @Path("/update-status")
-    fun updateInvoiceStatus(updateInvoiceStatusDto: UpdateInvoiceStatusDto): ApiResponse<InvoiceDto> {
+    fun updateInvoiceStatus(updateInvoiceStatusDto: UpdateInvoiceStatusDto): ApiResponse<Invoice> {
         val invoice = invoiceService.updateInvoiceStatus(updateInvoiceStatusDto)
 
-        val invoiceDto = modelMapper.map(invoice, InvoiceDto::class.java)
+        val invoiceDto = modelMapper.map(invoice, Invoice::class.java)
         return wrapSuccessInResponse(invoiceDto)
     }
 

@@ -7,6 +7,7 @@ import jakarta.transaction.Transactional
 import org.generis.dto.CreateCurrencyDto
 import org.generis.dto.UpdateCurrencyDto
 import org.generis.entity.Currency
+import org.generis.entity.Customer
 import org.generis.exception.ServiceException
 import org.generis.service.CurrencyService
 import org.modelmapper.ModelMapper
@@ -30,6 +31,11 @@ class CurrencyServiceImpl: CurrencyService {
     override fun getCurrency(id: String): Currency? {
         return entityManager.find(Currency::class.java, id) ?:
         throw ServiceException(-1, "No currency found with id $id")
+    }
+
+    override fun getAllCurrencies(): List<Currency> {
+        val query = entityManager?.createQuery("SELECT c FROM Currency c", Currency::class.java)
+        return query?.resultList ?: throw ServiceException(-1, "No currencies found")
     }
 
     override fun updateExchangeRate(id: String?, updateCurrencyDto: UpdateCurrencyDto): Currency {
