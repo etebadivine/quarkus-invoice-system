@@ -13,6 +13,7 @@ import org.generis.entity.Customer
 import org.generis.entity.Product
 import org.generis.entity.Subscription
 import org.generis.entity.SubscriptionItem
+import org.generis.enums.SubscriptionState
 import org.generis.exception.ServiceException
 import org.generis.service.SubscriptionService
 import java.time.LocalDate
@@ -94,6 +95,20 @@ class SubscriptionServiceImpl: SubscriptionService{
             Mail.withHtml(customerEmail, "Invoice", "")
                 .setHtml(invoiceHtml)
         )
+    }
+
+    override fun cancelSubscription(id: String) {
+        val subscription = entityManager.find(Subscription::class.java, id)
+        subscription?.let {
+            it.status = SubscriptionState.CANCELED
+        }
+    }
+
+    override fun reactivateSubscription(id: String) {
+        val subscription = entityManager.find(Subscription::class.java, id)
+        subscription?.let {
+            it.status = SubscriptionState.ACTIVE
+        }
     }
 
     private fun sendMailAlert(subscription:Subscription){

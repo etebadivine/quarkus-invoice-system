@@ -48,11 +48,25 @@ class SubscriptionController {
 
     @GET
     @Path("/active")
-    fun getAllActiveSubscriptions(): List<Subscription> {
+    fun getAllActiveSubscriptions(): ApiResponse<List<Subscription>> {
         val activeSubscriptions = subscriptionService.getAllActiveSubscriptions()
         if (activeSubscriptions.isEmpty()) {
             throw ServiceException(-1, "No subscriptions found")
         }
-        return activeSubscriptions
+        return wrapSuccessInResponse(activeSubscriptions)
+    }
+
+    @PUT
+    @Path("/cancel/{id}")
+    fun cancelSubscription(@PathParam("id") id: String): ApiResponse<String> {
+        subscriptionService.cancelSubscription(id)
+        return wrapSuccessInResponse("Subscription canceled successfully.")
+    }
+
+    @PUT
+    @Path("/reactivate/{id}")
+    fun reactivateSubscription(@PathParam("id") id: String): ApiResponse<String> {
+        subscriptionService.cancelSubscription(id)
+        return wrapSuccessInResponse("Subscription reactivated successfully.")
     }
 }

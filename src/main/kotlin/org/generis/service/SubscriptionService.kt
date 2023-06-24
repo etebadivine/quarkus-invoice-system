@@ -12,6 +12,9 @@ interface SubscriptionService {
 
     fun sendInvoice(subscription: Subscription, recurringMail: RecurringMail)
 
+    fun cancelSubscription(id: String)
+
+    fun reactivateSubscription(id: String)
 
     fun updateNextInvoiceDate(subscription: Subscription)
 

@@ -2,6 +2,7 @@ package org.generis.config
 
 import io.quarkus.scheduler.Scheduled
 import jakarta.inject.Singleton
+import org.generis.enums.SubscriptionState
 import org.generis.service.SubscriptionService
 import java.time.LocalDateTime
 
@@ -26,7 +27,7 @@ class RecurringEmail(
 
         for (subscription in subscriptions) {
             val nextInvoiceDate = subscription.nextInvoiceDate
-            if (nextInvoiceDate!!.isEqual(currentDate)) {
+            if (nextInvoiceDate!!.isEqual(currentDate).and(subscription.status == SubscriptionState.ACTIVE)) {
                 subscriptionService.sendInvoice(subscription, recurringMail)
                 subscriptionService.updateNextInvoiceDate(subscription)
                 subscriptionService.updateSubscription(subscription)
