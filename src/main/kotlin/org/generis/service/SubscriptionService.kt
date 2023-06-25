@@ -6,7 +6,7 @@ import org.generis.entity.Subscription
 
 interface SubscriptionService {
 
-    fun createSubscription(createSubscriptionDto: CreateSubscriptionDto): Subscription
+    fun createSubscription(createSubscriptionDto: CreateSubscriptionDto): Subscription?
 
     fun getSubscription(id: String): Subscription?
 

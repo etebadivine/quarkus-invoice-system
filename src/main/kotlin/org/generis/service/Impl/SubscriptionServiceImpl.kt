@@ -30,7 +30,7 @@ class SubscriptionServiceImpl: SubscriptionService{
     @Inject
     lateinit var mailer: Mailer
 
-    override fun createSubscription(createSubscriptionDto: CreateSubscriptionDto): Subscription {
+    override fun createSubscription(createSubscriptionDto: CreateSubscriptionDto): Subscription? {
 
         val customer = entityManager.find(Customer::class.java, createSubscriptionDto.customerId)
             ?: throw IllegalArgumentException("Invalid customerId")

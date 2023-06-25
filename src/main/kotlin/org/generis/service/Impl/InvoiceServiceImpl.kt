@@ -21,7 +21,7 @@ class InvoiceServiceImpl: InvoiceService {
     @Inject
     lateinit var entityManager: EntityManager
 
-    override fun createInvoice(createInvoiceDto: CreateInvoiceDto): Invoice {
+    override fun createInvoice(createInvoiceDto: CreateInvoiceDto): Invoice? {
         // Retrieve the customer based on the customerId from the database
         val customer = entityManager.find(Customer::class.java, createInvoiceDto.customerId)
             ?: throw IllegalArgumentException("Invalid customerId")
@@ -97,24 +97,13 @@ class InvoiceServiceImpl: InvoiceService {
             ?: throw ServiceException(-1, "No invoices found")
     }
 
-    override fun updateInvoiceStatus(updateInvoiceStatusDto: UpdateInvoiceStatusDto): Invoice {
+    override fun updateInvoiceStatus(updateInvoiceStatusDto: UpdateInvoiceStatusDto): Invoice? {
         val invoice = entityManager.find(Invoice::class.java, updateInvoiceStatusDto.invoiceId)
             ?: throw IllegalArgumentException("Invalid invoiceId")
 
         invoice.status = updateInvoiceStatusDto.status
 
         return entityManager.merge(invoice)
-    }
-
-    override fun getInvoiceByCustomerId(customerId: String): List<Invoice> {
-
-        val query: TypedQuery<Invoice> = entityManager.createQuery(
-            "SELECT i FROM Invoice i WHERE i.customerId.id = :customerId",
-            Invoice::class.java
-        )
-        query.setParameter("customerId", customerId)
-
-        return query.resultList
     }
 
 

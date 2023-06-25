@@ -23,7 +23,7 @@ class SubscriptionController {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    fun createSubscription(createSubscriptionDto: CreateSubscriptionDto): ApiResponse<Subscription> {
+    fun createSubscription(createSubscriptionDto: CreateSubscriptionDto): ApiResponse<Subscription?> {
         val subscription = subscriptionService.createSubscription(createSubscriptionDto)
 
         val apiResponse = wrapSuccessInResponse(subscription)
@@ -65,7 +65,7 @@ class SubscriptionController {
     @PUT
     @Path("/reactivate/{id}")
     fun reactivateSubscription(@PathParam("id") id: String): ApiResponse<String> {
-        subscriptionService.cancelSubscription(id)
+        subscriptionService.reactivateSubscription(id)
         return wrapSuccessInResponse("Subscription reactivated successfully.")
     }
 }

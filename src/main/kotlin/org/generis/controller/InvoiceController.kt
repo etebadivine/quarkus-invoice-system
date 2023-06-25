@@ -29,7 +29,7 @@ class InvoiceController {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    fun create(@Valid createInvoiceDto: CreateInvoiceDto): ApiResponse<Invoice> {
+    fun create(@Valid createInvoiceDto: CreateInvoiceDto): ApiResponse<Invoice?> {
         logger.info("http request: create")
 
         val invoice = invoiceService.createInvoice(createInvoiceDto)
@@ -56,7 +56,7 @@ class InvoiceController {
 
     @PUT
     @Path("/update-status")
-    fun updateInvoiceStatus(updateInvoiceStatusDto: UpdateInvoiceStatusDto): ApiResponse<Invoice> {
+    fun updateInvoiceStatus(updateInvoiceStatusDto: UpdateInvoiceStatusDto): ApiResponse<Invoice?> {
         val invoice = invoiceService.updateInvoiceStatus(updateInvoiceStatusDto)
 
         val invoiceDto = modelMapper.map(invoice, Invoice::class.java)
@@ -68,14 +68,5 @@ class InvoiceController {
     fun deleteInvoice(@PathParam("id") id: String): ApiResponse<Boolean> {
         invoiceService.deleteInvoice(id)
         return wrapSuccessInResponse(true)
-    }
-
-
-    @GET
-    @Path("/{customerId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    fun getInvoiceByCustomerId(@PathParam("customerId") customerId: String): ApiResponse<List<Invoice>> {
-        val invoices = invoiceService.getInvoiceByCustomerId(customerId)
-        return wrapSuccessInResponse(invoices)
     }
 }
