@@ -7,4 +7,5 @@ data class CreateProductDto (
     val description: String,
     val unitPrice: Double,
     val isRecurring: ProductState? = null,
+    val recurringPeriod: Long? = null,
 )

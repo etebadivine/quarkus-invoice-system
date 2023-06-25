@@ -1,7 +1,7 @@
 package org.generis.service.Impl
 
+import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import jakarta.inject.Singleton
 import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.transaction.Transactional
@@ -9,14 +9,13 @@ import org.generis.dto.CreateCustomerDto
 import org.generis.dto.UpdateCustomerDto
 import org.generis.entity.Currency
 import org.generis.entity.Customer
-import org.generis.entity.Product
 import org.generis.exception.ServiceException
 import org.generis.service.CustomerService
 import org.modelmapper.ModelMapper
 
 
-@Singleton
 @Transactional
+@ApplicationScoped
 class CustomerServiceImpl: CustomerService {
 
     @Inject
@@ -42,10 +41,9 @@ class CustomerServiceImpl: CustomerService {
     override fun getAllCustomers(): List<Customer> {
         val query = entityManager?.createQuery("SELECT c FROM Customer c", Customer::class.java)
         return query?.resultList ?: throw ServiceException(-1, "No customers found")
-
     }
 
-    override fun createCustomer(createCustomerDto: CreateCustomerDto): Customer {
+    override fun createCustomer(createCustomerDto: CreateCustomerDto): Customer? {
         val customer = modelMapper.map(createCustomerDto, Customer::class.java)
 
         val currency = entityManager!!.find(Currency::class.java, createCustomerDto.currency)
@@ -57,7 +55,7 @@ class CustomerServiceImpl: CustomerService {
         return customer
     }
 
-    override fun updateCustomer(id: String?, updateCustomerDto: UpdateCustomerDto): Customer {
+    override fun updateCustomer(id: String?, updateCustomerDto: UpdateCustomerDto): Customer? {
         val customer = entityManager!!.find(Customer::class.java, id)
             ?:  throw ServiceException(-1, "No customer found with id $id")
 
@@ -77,8 +75,10 @@ class CustomerServiceImpl: CustomerService {
 
     override fun deleteCustomerById(id: String) {
         val customer = entityManager?.find(Customer::class.java, id)
-        customer?.let {
-            entityManager?.remove(it)
+        if (customer == null) {
+            throw ServiceException(-1, "Customer not found")
+        } else {
+            entityManager?.remove(customer)
         }
     }
 }

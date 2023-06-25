@@ -1,7 +1,7 @@
 package org.generis.service.Impl
 
+import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import jakarta.inject.Singleton
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import org.generis.dto.CreateInvoiceItemDto
@@ -10,8 +10,8 @@ import org.generis.entity.Product
 import org.generis.service.InvoiceItemService
 
 
-@Singleton
 @Transactional
+@ApplicationScoped
 class InvoiceItemServiceImpl: InvoiceItemService {
 
     @Inject

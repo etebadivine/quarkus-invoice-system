@@ -1,22 +1,20 @@
 package org.generis.service.Impl
 
-import io.quarkus.mailer.Attachment
 import io.quarkus.mailer.Mail
 import io.quarkus.mailer.Mailer
+import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import jakarta.inject.Singleton
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import org.generis.dto.EmailRequestDto
 import org.generis.dto.EmailResponseDto
 import org.generis.entity.Email
 import org.generis.service.EmailService
-import java.io.ByteArrayInputStream
 import java.io.File
 
 
-@Singleton
 @Transactional
+@ApplicationScoped
 class EmailServiceImpl: EmailService {
     @Inject
     lateinit var mailer: Mailer

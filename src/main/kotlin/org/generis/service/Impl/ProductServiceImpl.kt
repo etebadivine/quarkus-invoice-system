@@ -1,11 +1,13 @@
 package org.generis.service.Impl
 
+import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.transaction.Transactional
 import org.generis.dto.*
+import org.generis.entity.Currency
 import org.generis.entity.Product
 import org.generis.enums.ProductState
 import org.generis.exception.ServiceException
@@ -13,12 +15,13 @@ import org.generis.service.ProductService
 import org.modelmapper.ModelMapper
 
 
-@Singleton
 @Transactional
+@ApplicationScoped
 class ProductServiceImpl: ProductService {
 
     @Inject
     lateinit var entityManager: EntityManager
+
 
     private val modelMapper = ModelMapper()
 
@@ -50,13 +53,14 @@ class ProductServiceImpl: ProductService {
         return query.resultList ?: throw ServiceException(-1, "No products found")
     }
 
-    override fun createProduct(createProductDto: CreateProductDto): Product {
+    override fun createProduct(createProductDto: CreateProductDto): Product? {
+
         val product = modelMapper.map(createProductDto, Product::class.java)
         product.persist()
         return product
     }
 
-    override fun updateProduct(id: String?, updateProductDto: UpdateProductDto): Product {
+    override fun updateProduct(id: String?, updateProductDto: UpdateProductDto): Product? {
         val product = entityManager.find(Product::class.java, id)
             ?:  throw ServiceException(-1, "No product found with id $id")
 
@@ -64,14 +68,17 @@ class ProductServiceImpl: ProductService {
         updateProductDto.unitPrice?.let { product.unitPrice = it }
         updateProductDto.description?.let { product.description = it }
         updateProductDto.isRecurring?.let { product.isRecurring = it }
+        updateProductDto.recurringPeriod?.let { product.recurringPeriod = it }
 
         return product
     }
 
     override fun deleteProductById(id: String){
         val product = entityManager.find(Product::class.java, id)
-        product?.let {
-            entityManager.remove(it)
+        if (product == null) {
+            throw ServiceException(-1, "Product not found")
+        } else {
+            entityManager?.remove(product)
         }
     }
 }

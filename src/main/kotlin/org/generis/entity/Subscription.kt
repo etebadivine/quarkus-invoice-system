@@ -33,11 +33,12 @@ class Subscription : PanacheEntityBase() {
     @Column(name = "start_date")
     var startDate: LocalDate? = null
 
+    @Column(name = "end_date")
+    var endDate: LocalDate? = null
+
+
     @Column(name = "next_invoiceDate")
     var nextInvoiceDate: LocalDate? = null
-
-    @Column(name = "recurring_period")
-    var recurringPeriod: Long? = null
 
     @Column(name = "subscription_status")
     @Enumerated(EnumType.STRING)

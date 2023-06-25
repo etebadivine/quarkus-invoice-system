@@ -15,22 +15,20 @@ import org.modelmapper.ModelMapper
 import org.slf4j.LoggerFactory
 
 
+//@RolesAllowed("ROLE_ADMIN")
 
 @Path("products")
-//@RolesAllowed("ROLE_ADMIN")
+@Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 class ProductController {
 
     private val logger = LoggerFactory.getLogger(ProductController::class.java)
-    private val modelMapper = ModelMapper()
 
     @Inject
     lateinit var productService: ProductService
 
-
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    fun create(@Valid createProductDto: CreateProductDto): ApiResponse<Product> {
+    fun create(@Valid createProductDto: CreateProductDto): ApiResponse<Product?> {
         logger.info("http request: create")
 
         val product = productService.createProduct(createProductDto)
@@ -60,7 +58,7 @@ class ProductController {
     @Path("/{id}")
     fun updateProduct(
         @PathParam("id") id: String, updateProductDto: UpdateProductDto
-    ): ApiResponse<Product> {
+    ): ApiResponse<Product?> {
         val updatedProduct = productService.updateProduct(id, updateProductDto)
         return wrapSuccessInResponse(updatedProduct)
     }

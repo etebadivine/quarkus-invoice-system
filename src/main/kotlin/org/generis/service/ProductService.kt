@@ -9,7 +9,7 @@ interface ProductService {
     fun getByProductName(productName: String): Product?
     fun geProductByType(productState: ProductState):  List<Product>
     fun getAllProducts(): List<Product>
-    fun createProduct(createProductDto: CreateProductDto): Product
-    fun updateProduct(id: String?, updateProductDto: UpdateProductDto): Product
+    fun createProduct(createProductDto: CreateProductDto): Product?
+    fun updateProduct(id: String?, updateProductDto: UpdateProductDto): Product?
     fun deleteProductById(id: String)
 }

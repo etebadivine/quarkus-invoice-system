@@ -9,7 +9,6 @@ import org.generis.entity.Subscription
 import org.generis.exception.ServiceException
 import org.generis.service.SubscriptionService
 import org.generis.util.wrapSuccessInResponse
-import org.modelmapper.ModelMapper
 import org.slf4j.LoggerFactory
 
 

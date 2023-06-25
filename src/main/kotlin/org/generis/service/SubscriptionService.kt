@@ -1,6 +1,6 @@
 package org.generis.service
 
-import org.generis.config.RecurringMail
+import org.generis.config.RecurringInvoice
 import org.generis.dto.CreateSubscriptionDto
 import org.generis.entity.Subscription
 
@@ -10,7 +10,7 @@ interface SubscriptionService {
 
     fun getSubscription(id: String): Subscription?
 
-    fun sendInvoice(subscription: Subscription, recurringMail: RecurringMail)
+    fun sendInvoice(subscription: Subscription, recurringInvoice: RecurringInvoice)
 
     fun cancelSubscription(id: String)
 

@@ -5,7 +5,7 @@ import org.generis.entity.Subscription
 
 
 @Singleton
-class RecurringMail {
+class RecurringInvoice {
     fun generateInvoiceHtml(subscription: Subscription): String {
         val stringBuilder = StringBuilder()
 

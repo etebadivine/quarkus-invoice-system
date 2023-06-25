@@ -33,7 +33,7 @@ class Invoice : PanacheEntityBase() {
     var invoiceNumber: String? = null
 
     @JoinColumn(name = "transaction_currency")
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     var currency: Currency? = null
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "invoice", cascade = [CascadeType.PERSIST, CascadeType.MERGE], orphanRemoval = true)
@@ -57,7 +57,7 @@ class Invoice : PanacheEntityBase() {
     var discount: Double? = 0.00
 
     @Column(name = "sub_total")
-    var subTotal: Double? = null
+    var subTotal: Double? = 0.00
 
     @Column(name = "total_amount")
     var totalAmount: Double? = null

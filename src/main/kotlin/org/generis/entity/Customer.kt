@@ -35,7 +35,7 @@ class Customer : PanacheEntityBase() {
     var taxNumber: String? = null
 
     @JoinColumn(name = "transaction_currency")
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     var currency: Currency? = null
 
     @CreationTimestamp

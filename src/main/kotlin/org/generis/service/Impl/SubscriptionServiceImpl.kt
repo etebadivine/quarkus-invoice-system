@@ -2,12 +2,12 @@ package org.generis.service.Impl
 
 import io.quarkus.mailer.Mail
 import io.quarkus.mailer.Mailer
+import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import jakarta.inject.Singleton
 import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.transaction.Transactional
-import org.generis.config.RecurringMail
+import org.generis.config.RecurringInvoice
 import org.generis.dto.CreateSubscriptionDto
 import org.generis.entity.Customer
 import org.generis.entity.Product
@@ -20,8 +20,8 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 
-@Singleton
 @Transactional
+@ApplicationScoped
 class SubscriptionServiceImpl: SubscriptionService{
 
     @Inject
@@ -40,11 +40,14 @@ class SubscriptionServiceImpl: SubscriptionService{
         subscription.customerId = customer
         subscription.startDate = LocalDate.parse(createSubscriptionDto.startDate,
             DateTimeFormatter.ofPattern("dd-MM-yyyy" ))
-        subscription.recurringPeriod = createSubscriptionDto.recurringPeriod
+        subscription.endDate = LocalDate.parse(createSubscriptionDto.endDate,
+            DateTimeFormatter.ofPattern("dd-MM-yyyy" ))
         subscription.nextInvoiceDate = LocalDate.now()
         subscription.tax = createSubscriptionDto.tax
         subscription.discount = createSubscriptionDto.discount
         subscription.totalAmount = 0.00
+
+
 
         for (itemDto in createSubscriptionDto.items) {
             val product = entityManager.find(Product::class.java, itemDto.productId)
@@ -62,6 +65,7 @@ class SubscriptionServiceImpl: SubscriptionService{
 
             // Add the invoice item to the invoice
             subscription.items.add(subscriptionItems)
+
 
             // Apply tax and discount to calculate the total
             val discountPercent = createSubscriptionDto.discount
@@ -86,10 +90,10 @@ class SubscriptionServiceImpl: SubscriptionService{
         return subscription
     }
 
-    override fun sendInvoice(subscription: Subscription, recurringMail: RecurringMail) {
+    override fun sendInvoice(subscription: Subscription, recurringInvoice: RecurringInvoice) {
         val customerEmail = subscription.customerId?.email
 
-        val invoiceHtml = recurringMail.generateInvoiceHtml(subscription)
+        val invoiceHtml = recurringInvoice.generateInvoiceHtml(subscription)
 
         mailer.send(
             Mail.withHtml(customerEmail, "Invoice", "")
@@ -119,12 +123,16 @@ class SubscriptionServiceImpl: SubscriptionService{
 
     override fun updateNextInvoiceDate(subscription: Subscription) {
         val nextInvoiceDate = subscription.nextInvoiceDate
-        val recurringPeriod = subscription?.recurringPeriod
+//        val recurringPeriod = subscription?.recurringPeriod
 
-        if (nextInvoiceDate != null && recurringPeriod != null) {
-            subscription.nextInvoiceDate = nextInvoiceDate.plusDays(recurringPeriod.toLong())
-        } else {
-            throw IllegalArgumentException("Invalid nextInvoiceDate or recurringPeriod")
+        for(item in subscription.items) {
+            val recurringPeriod = item.productId?.recurringPeriod
+
+            if (nextInvoiceDate != null && recurringPeriod != null) {
+                subscription.nextInvoiceDate = nextInvoiceDate.plusDays(recurringPeriod.toLong())
+            } else {
+                throw IllegalArgumentException("Invalid nextInvoiceDate or recurringPeriod")
+            }
         }
     }
 

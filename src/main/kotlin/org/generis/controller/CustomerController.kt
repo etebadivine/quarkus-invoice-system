@@ -23,7 +23,7 @@ class CustomerController {
     @Inject
     lateinit var customerService: CustomerService
     @POST
-    fun create(@Valid createCustomerDto:CreateCustomerDto): ApiResponse<Customer> {
+    fun create(@Valid createCustomerDto:CreateCustomerDto): ApiResponse<Customer?> {
         logger.info("http request: create")
 
         val customer = customerService.createCustomer(createCustomerDto)
@@ -46,7 +46,7 @@ class CustomerController {
     @Path("/{id}")
     fun updateCustomer(
         @PathParam("id") id: String, updateCustomerDto: UpdateCustomerDto
-    ): ApiResponse<Customer> {
+    ): ApiResponse<Customer?> {
         val updatedCustomer = customerService.updateCustomer(id, updateCustomerDto)
         return wrapSuccessInResponse(updatedCustomer)
     }

@@ -1,20 +1,19 @@
 package org.generis.service.Impl
 
+import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import jakarta.inject.Singleton
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import org.generis.dto.CreateCurrencyDto
 import org.generis.dto.UpdateCurrencyDto
 import org.generis.entity.Currency
-import org.generis.entity.Customer
 import org.generis.exception.ServiceException
 import org.generis.service.CurrencyService
 import org.modelmapper.ModelMapper
 
 
-@Singleton
 @Transactional
+@ApplicationScoped
 class CurrencyServiceImpl: CurrencyService {
 
     @Inject

@@ -1,5 +1,6 @@
 package org.generis.service.Impl
 
+import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.*
 import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
@@ -13,8 +14,8 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
-@Singleton
 @Transactional
+@ApplicationScoped
 class InvoiceServiceImpl: InvoiceService {
 
     @Inject
@@ -37,9 +38,9 @@ class InvoiceServiceImpl: InvoiceService {
             LocalDate.parse(createInvoiceDto.dueDate, DateTimeFormatter.ofPattern("dd-MM-yyyy"))
         invoice.createdDate = LocalDateTime.now()
         invoice.customerId = customer
+        invoice.currency = currency
         invoice.tax = createInvoiceDto.tax
         invoice.discount = createInvoiceDto.discount
-        invoice.currency = currency
         invoice.subTotal = 0.00
         invoice.totalAmount = 0.00
 

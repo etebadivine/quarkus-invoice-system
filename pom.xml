@@ -112,6 +112,19 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-smallrye-openapi</artifactId>
     </dependency>
+      <!-- https://mvnrepository.com/artifact/uk.co.jemos.podam/podam -->
+      <dependency>
+          <groupId>uk.co.jemos.podam</groupId>
+          <artifactId>podam</artifactId>
+          <version>7.2.9.RELEASE</version>
+          <scope>test</scope>
+      </dependency>
+    <dependency>
+      <groupId>io.mockk</groupId>
+      <artifactId>mockk</artifactId>
+      <version>1.12.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   <build>
     <sourceDirectory>src/main/kotlin</sourceDirectory>

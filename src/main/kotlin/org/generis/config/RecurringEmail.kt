@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 @Singleton
 class RecurringEmail(
     private val subscriptionService: SubscriptionService,
-    private val recurringMail: RecurringMail
+    private val recurringMail: RecurringInvoice
 ) {
 
 //    "*/3 * * * * ?"
@@ -27,9 +27,15 @@ class RecurringEmail(
 
         for (subscription in subscriptions) {
             val nextInvoiceDate = subscription.nextInvoiceDate
+            val endDate = subscription.endDate
+
             if (nextInvoiceDate!!.isEqual(currentDate).and(subscription.status == SubscriptionState.ACTIVE)) {
                 subscriptionService.sendInvoice(subscription, recurringMail)
                 subscriptionService.updateNextInvoiceDate(subscription)
+                subscriptionService.updateSubscription(subscription)
+            }
+            else if (endDate != null && endDate.isEqual(currentDate) && subscription.status == SubscriptionState.ACTIVE) {
+                subscription.status = SubscriptionState.CANCELED
                 subscriptionService.updateSubscription(subscription)
             }
         }

@@ -1,5 +1,6 @@
 package org.generis.entity
 
+import com.fasterxml.jackson.annotation.JsonValue
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase
 import jakarta.persistence.*
 import org.generis.enums.ProductState
@@ -26,9 +27,13 @@ class Product : PanacheEntityBase() {
     @Column(name = "description")
     var description: String? = null
 
+
     @Column(name = "product_state")
     @Enumerated(EnumType.STRING)
     var isRecurring: ProductState? = null
+
+    @Column(name = "recurring_period")
+    var recurringPeriod: Long? = null
 
     @CreationTimestamp
     @Column(name = "created_date")
