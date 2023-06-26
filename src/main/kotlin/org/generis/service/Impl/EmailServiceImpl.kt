@@ -28,7 +28,6 @@ class EmailServiceImpl: EmailService {
         return email.toDto()
     }
 
-
     override fun saveEmailToDatabase(requestDto: EmailRequestDto): Email {
         val email = Email()
         email.recipient = requestDto.recipient

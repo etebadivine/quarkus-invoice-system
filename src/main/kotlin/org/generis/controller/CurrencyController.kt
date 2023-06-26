@@ -6,8 +6,8 @@ import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
 import org.generis.domain.ApiResponse
 import org.generis.dto.CreateCurrencyDto
+import org.generis.dto.UpdateCurrencyDto
 import org.generis.entity.Currency
-import org.generis.entity.Customer
 import org.generis.service.CurrencyService
 import org.generis.util.wrapSuccessInResponse
 import org.slf4j.LoggerFactory
@@ -24,7 +24,7 @@ class CurrencyController {
     private val logger = LoggerFactory.getLogger(CurrencyController::class.java)
 
     @POST
-    fun create(@Valid createCurrencyDto: CreateCurrencyDto): ApiResponse<Currency> {
+    fun create(@Valid createCurrencyDto: CreateCurrencyDto): ApiResponse<Currency?> {
         logger.info("http request: create")
 
         val currency = currencyService.createCurrency(createCurrencyDto)
@@ -47,6 +47,14 @@ class CurrencyController {
     fun getAllCurrencies(): ApiResponse<List<Currency>> {
         val currencies = currencyService.getAllCurrencies()
         return wrapSuccessInResponse(currencies)
+    }
+
+    @PUT
+    @Path("/{id}")
+    fun updateCurrency(
+        @PathParam("id") id: String, updateCurrency: UpdateCurrencyDto): ApiResponse<Currency?> {
+        val updatedExchangeRate = currencyService.updateExchangeRate(id, updateCurrency)
+        return wrapSuccessInResponse(updatedExchangeRate)
     }
 
 }

@@ -19,17 +19,9 @@ class EmailController {
     @Inject
     lateinit var emailService: EmailService
 
-    @Inject
-    lateinit var recurringEmail: RecurringEmail
-
     @POST
     fun sendEmail(requestDto: EmailRequestDto): Response {
             val responseDto: EmailResponseDto = emailService.sendEmailWithAttachment(requestDto)
             return Response.ok(responseDto).build()
         }
-    @POST
-    @Path("/recurring")
-    fun sendRecurringEmails(){
-        recurringEmail.sendRecurringInvoices()
-    }
 }

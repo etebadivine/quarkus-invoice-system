@@ -62,7 +62,7 @@ internal class CustomerControllerTest {
     }
 
     @Test
-    fun testCreate_WhenCreateCustomerFails() {
+    fun `test create when create customer fails`() {
         // GIVEN
         val request = factory.manufacturePojoWithFullData(CreateCustomerDto::class.java)
         every { service.createCustomer(any()) } returns null
@@ -74,7 +74,6 @@ internal class CustomerControllerTest {
         assertNull(expected.data)
         assertFalse(expected.equals(false))
         verify { service.createCustomer(request) }
-
     }
 
 
@@ -138,8 +137,6 @@ internal class CustomerControllerTest {
         assertEquals(null, expected.data)
         verify { service.updateCustomer(customerId, updateCustomerDto) }
         }
-
-
 
     @Test
     fun getAllCustomers() {

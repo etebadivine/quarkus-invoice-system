@@ -8,7 +8,7 @@ data class EmailRequestDto(
 
     var body: String,
 
-    var attachment: String
+    var attachment: String? = null
     )
 
 data class EmailResponseDto(

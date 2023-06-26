@@ -21,7 +21,7 @@ class CurrencyServiceImpl: CurrencyService {
 
     private val modelMapper = ModelMapper()
 
-    override fun createCurrency(createCurrencyDto: CreateCurrencyDto): Currency {
+    override fun createCurrency(createCurrencyDto: CreateCurrencyDto): Currency? {
             val currency = modelMapper.map(createCurrencyDto, Currency::class.java)
             currency.persist()
             return currency
@@ -37,7 +37,7 @@ class CurrencyServiceImpl: CurrencyService {
         return query?.resultList ?: throw ServiceException(-1, "No currencies found")
     }
 
-    override fun updateExchangeRate(id: String?, updateCurrencyDto: UpdateCurrencyDto): Currency {
+    override fun updateExchangeRate(id: String?, updateCurrencyDto: UpdateCurrencyDto): Currency? {
         val currency = entityManager.find(Currency::class.java, id)
             ?: throw ServiceException(-1, "No currency found with id $id")
 
