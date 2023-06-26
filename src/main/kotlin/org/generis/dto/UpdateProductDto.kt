@@ -9,5 +9,5 @@ data class UpdateProductDto(
     var productName: String? = null,
     var description: String? = null,
     var isRecurring: ProductState? = null,
-    var recurringPeriod: Long? = null
+//    var recurringPeriod: Long? = null
 )

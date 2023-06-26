@@ -22,7 +22,6 @@ class ProductServiceImpl: ProductService {
     @Inject
     lateinit var entityManager: EntityManager
 
-
     private val modelMapper = ModelMapper()
 
     override fun getProduct(id: String): Product {
@@ -54,7 +53,6 @@ class ProductServiceImpl: ProductService {
     }
 
     override fun createProduct(createProductDto: CreateProductDto): Product? {
-
         val product = modelMapper.map(createProductDto, Product::class.java)
         product.persist()
         return product
@@ -68,7 +66,7 @@ class ProductServiceImpl: ProductService {
         updateProductDto.unitPrice?.let { product.unitPrice = it }
         updateProductDto.description?.let { product.description = it }
         updateProductDto.isRecurring?.let { product.isRecurring = it }
-        updateProductDto.recurringPeriod?.let { product.recurringPeriod = it }
+//        updateProductDto.recurringPeriod?.let { product.recurringPeriod = it }
 
         return product
     }

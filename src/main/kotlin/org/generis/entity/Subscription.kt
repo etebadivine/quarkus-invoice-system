@@ -36,6 +36,8 @@ class Subscription : PanacheEntityBase() {
     @Column(name = "end_date")
     var endDate: LocalDate? = null
 
+    @Column(name = "recurring_period")
+    var recurringPeriod: Long? = null
 
     @Column(name = "next_invoiceDate")
     var nextInvoiceDate: LocalDate? = null

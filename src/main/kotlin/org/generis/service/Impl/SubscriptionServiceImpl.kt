@@ -17,6 +17,7 @@ import org.generis.enums.SubscriptionState
 import org.generis.exception.ServiceException
 import org.generis.service.SubscriptionService
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
@@ -42,12 +43,12 @@ class SubscriptionServiceImpl: SubscriptionService{
             DateTimeFormatter.ofPattern("dd-MM-yyyy" ))
         subscription.endDate = LocalDate.parse(createSubscriptionDto.endDate,
             DateTimeFormatter.ofPattern("dd-MM-yyyy" ))
+        subscription.recurringPeriod = createSubscriptionDto.recurringPeriod
         subscription.nextInvoiceDate = LocalDate.now()
+        subscription.createdDate = LocalDateTime.now()
         subscription.tax = createSubscriptionDto.tax
         subscription.discount = createSubscriptionDto.discount
         subscription.totalAmount = 0.00
-
-
 
         for (itemDto in createSubscriptionDto.items) {
             val product = entityManager.find(Product::class.java, itemDto.productId)
@@ -123,16 +124,12 @@ class SubscriptionServiceImpl: SubscriptionService{
 
     override fun updateNextInvoiceDate(subscription: Subscription) {
         val nextInvoiceDate = subscription.nextInvoiceDate
-//        val recurringPeriod = subscription?.recurringPeriod
+        val recurringPeriod = subscription.recurringPeriod
 
-        for(item in subscription.items) {
-            val recurringPeriod = item.productId?.recurringPeriod
-
-            if (nextInvoiceDate != null && recurringPeriod != null) {
-                subscription.nextInvoiceDate = nextInvoiceDate.plusDays(recurringPeriod.toLong())
-            } else {
-                throw IllegalArgumentException("Invalid nextInvoiceDate or recurringPeriod")
-            }
+        if (nextInvoiceDate != null && recurringPeriod != null) {
+            subscription.nextInvoiceDate = nextInvoiceDate.plusDays(recurringPeriod.toLong())
+        } else {
+            throw IllegalArgumentException("Invalid nextInvoiceDate or recurringPeriod")
         }
     }
 
