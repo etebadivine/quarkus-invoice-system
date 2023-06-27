@@ -40,10 +40,10 @@ class ProductServiceImpl: ProductService {
 
     override fun geProductByType(productState: ProductState): List<Product> {
         val query: TypedQuery<Product> = entityManager.createQuery(
-            "SELECT p FROM Product p WHERE p.isRecurring = :isRecurring",
+            "SELECT p FROM Product p WHERE p.productState = :productState",
             Product::class.java
         )
-        query.setParameter("isRecurring", productState)
+        query.setParameter("productState", productState)
         return query.resultList
     }
 
@@ -65,8 +65,7 @@ class ProductServiceImpl: ProductService {
         updateProductDto.productName?.let { product.productName = it }
         updateProductDto.unitPrice?.let { product.unitPrice = it }
         updateProductDto.description?.let { product.description = it }
-        updateProductDto.isRecurring?.let { product.isRecurring = it }
-//        updateProductDto.recurringPeriod?.let { product.recurringPeriod = it }
+        updateProductDto.productState?.let { product.productState = it }
 
         return product
     }

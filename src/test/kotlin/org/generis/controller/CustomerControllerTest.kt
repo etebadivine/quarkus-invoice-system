@@ -3,15 +3,9 @@ package org.generis.controller
 import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
-import jakarta.ws.rs.NotFoundException
-import jakarta.ws.rs.core.Response
-import org.generis.domain.ApiResponse
-import org.generis.domain.CODE_FAILURE
-import org.generis.domain.CODE_SERVICE_FAILURE
 import org.generis.domain.CODE_SUCCESS
 import org.generis.dto.CreateCustomerDto
 import org.generis.dto.UpdateCustomerDto
-import org.generis.dto.UpdateProductDto
 import org.generis.entity.Customer
 import org.generis.exception.ServiceException
 import org.generis.service.CustomerService

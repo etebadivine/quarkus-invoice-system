@@ -16,10 +16,10 @@ import org.modelmapper.ModelMapper
 
 @Transactional
 @ApplicationScoped
-class CustomerServiceImpl: CustomerService {
+class CustomerServiceImpl : CustomerService {
 
     @Inject
-    var entityManager: EntityManager? = null
+    lateinit var entityManager: EntityManager
 
     private val modelMapper = ModelMapper()
 

@@ -29,11 +29,8 @@ class Product : PanacheEntityBase() {
 
 
     @Column(name = "product_state")
-    @Enumerated(EnumType.STRING)
-    var isRecurring: ProductState? = null
-
-//    @Column(name = "recurring_period")
-//    var recurringPeriod: Long? = null
+    @Enumerated(value = EnumType.STRING)
+    var productState: ProductState? = null
 
     @CreationTimestamp
     @Column(name = "created_date")
