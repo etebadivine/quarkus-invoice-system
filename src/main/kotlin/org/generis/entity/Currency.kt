@@ -23,4 +23,7 @@ class Currency  : PanacheEntityBase() {
 
     @Column(name = "country")
     var country: String? = null
+
+    @Column(name = "currency_code")
+    var currencyCode: String? = null
 }

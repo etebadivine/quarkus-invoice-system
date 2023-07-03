@@ -48,7 +48,6 @@ class SubscriptionServiceImpl: SubscriptionService{
         subscription.createdDate = LocalDateTime.now()
         subscription.tax = createSubscriptionDto.tax
         subscription.discount = createSubscriptionDto.discount
-        subscription.totalAmount = 0.00
 
         for (itemDto in createSubscriptionDto.items) {
             val product = entityManager.find(Product::class.java, itemDto.productId)
@@ -70,10 +69,10 @@ class SubscriptionServiceImpl: SubscriptionService{
 
             // Apply tax and discount to calculate the total
             val discountPercent = createSubscriptionDto.discount
-            val discountAmount = itemTotal?.times((discountPercent?.div(100.0)!!))
+            val discountAmount = itemTotal?.times((discountPercent?.div(100.0)?: 0.0))
 
             val taxPercent = createSubscriptionDto.tax
-            val taxAmount = itemTotal?.times((taxPercent?.div(100.0)!!))
+            val taxAmount = itemTotal?.times((taxPercent?.div(100.0)?: 0.0))
 
             // Apply tax and discount to calculate the total
             if (itemTotal != null) {

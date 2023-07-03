@@ -60,7 +60,7 @@ class Invoice : PanacheEntityBase() {
     var subTotal: Double? = 0.00
 
     @Column(name = "total_amount")
-    var totalAmount: Double? = null
+    var totalAmount: Double? =  0.00
 
     fun generateInvoiceNumber(): String {
         val currentDateTime = LocalDateTime.now()

@@ -41,8 +41,6 @@ class InvoiceServiceImpl: InvoiceService {
         invoice.currency = currency
         invoice.tax = createInvoiceDto.tax
         invoice.discount = createInvoiceDto.discount
-        invoice.subTotal = 0.00
-        invoice.totalAmount = 0.00
 
         // Calculate the subtotal and total based on the invoice items
         var subtotal = 0.00
@@ -72,10 +70,10 @@ class InvoiceServiceImpl: InvoiceService {
 
         // Apply tax and discount to calculate the total
         val discountPercent = createInvoiceDto.discount
-        val discountAmount = subtotal * (discountPercent?.div(100.0)!!)
+        val discountAmount = subtotal * (discountPercent?.div(100)?: 0.0)
 
         val taxPercent = createInvoiceDto.tax
-        val taxAmount = subtotal * (taxPercent?.div(100.0)!!)
+        val taxAmount = subtotal * (taxPercent?.div(100)?: 0.0)
 
         // Apply tax and discount to calculate the total
         invoice.subTotal = subtotal

@@ -8,7 +8,5 @@ data class CreateInvoiceDto(
     var currency: String,
     var dueDate: String,
     var tax: Double? = 0.00,
-    var discount: Double? = 0.00,
-    var totalAmount: Double? = null,
-    var subTotal: Double? = null
+    var discount: Double? =0.00
 )
