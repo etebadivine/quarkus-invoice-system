@@ -15,6 +15,7 @@ import org.generis.business.subscription.dto.CreateSubscriptionDto
 import org.generis.business.subscription.enums.SubscriptionState
 import org.generis.business.subscription.repo.Subscription
 import org.generis.business.subscription.repo.SubscriptionItem
+import java.math.RoundingMode
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -65,7 +66,6 @@ class SubscriptionServiceImpl: SubscriptionService{
             // Add the invoice item to the invoice
             subscription.items.add(subscriptionItems)
 
-
             // Apply tax and discount to calculate the total
             val discountPercent = createSubscriptionDto.discount
             val discountAmount = itemTotal?.times((discountPercent?.div(100.0)?: 0.0))
@@ -75,7 +75,8 @@ class SubscriptionServiceImpl: SubscriptionService{
 
             // Apply tax and discount to calculate the total
             if (itemTotal != null) {
-                subscription.totalAmount = itemTotal + taxAmount!! - discountAmount!!
+               val totalAmount = itemTotal + taxAmount!! - discountAmount!!
+                subscription.totalAmount = totalAmount.toBigDecimal().setScale(4, RoundingMode.UP).toDouble()
             }
 
             subscription.totalAmount = itemTotal

@@ -12,6 +12,7 @@ import org.generis.business.invoice.dto.UpdateInvoiceStatusDto
 import org.generis.business.invoice.repo.Invoice
 import org.generis.business.invoice.repo.InvoiceItem
 import org.generis.business.product.repo.Product
+import java.math.RoundingMode
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -80,13 +81,14 @@ class InvoiceServiceImpl: InvoiceService {
 
         // Apply tax and discount to calculate the total
         invoice.subTotal = subtotal
-        invoice.totalAmount = subtotal + taxAmount - discountAmount
+
+        val totalAmount = subtotal + taxAmount - discountAmount
+        invoice.totalAmount =  totalAmount.toBigDecimal().setScale(4, RoundingMode.UP).toDouble()
 
         // Save the invoice to the database
         entityManager.persist(invoice)
 
         return invoice
-
     }
 
     override fun getInvoice(id: String): Invoice? {
