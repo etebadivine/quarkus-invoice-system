@@ -53,8 +53,12 @@ class SubscriptionServiceImpl: SubscriptionService{
             val product = entityManager.find(Product::class.java, itemDto.productId)
                 ?: throw IllegalArgumentException("Invalid productId")
 
-            // Calculate the total for the invoice item based on the product price and quantity
-            val itemTotal = product.unitPrice?.times(itemDto.quantity!!)?.times(customer.currency!!.exchangeRate!!)
+            val startDate = subscription.startDate
+            val itemTotal = if (createSubscriptionDto.recurringPeriod.toInt() == 30 && startDate!!.dayOfMonth >= 20) {
+                product.unitPrice?.div(2)?.times(itemDto.quantity!!)?.times(customer.currency!!.exchangeRate!!)
+            } else {
+                product.unitPrice?.times(itemDto.quantity!!)?.times(customer.currency!!.exchangeRate!!)
+            }
 
             // Create the InvoiceItem instance
             val subscriptionItems = SubscriptionItem()

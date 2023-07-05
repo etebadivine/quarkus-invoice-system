@@ -29,7 +29,7 @@ class RecurringInvoice {
             stringBuilder.append("<li style=\"list-style-type:none;\">")
             stringBuilder.append("<b>Product:</b> ${item?.productId?.productName}<br/>")
             stringBuilder.append("<b>Quantity:</b> ${item.quantity}<br/>")
-            stringBuilder.append("<b>Total Amount:</b> ${subscription.customerId?.currency?.currencyName} ${item.totalAmount}<br/>")
+            stringBuilder.append("<b>Total Amount:</b> ${subscription.customerId?.currency?.currencyCode}${item.totalAmount}<br/>")
             stringBuilder.append("</li>")
         }
         stringBuilder.append("</ul>")

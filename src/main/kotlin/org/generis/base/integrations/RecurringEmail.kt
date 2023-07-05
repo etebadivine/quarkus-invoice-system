@@ -17,8 +17,7 @@ class RecurringEmail(
 //    "0 0 7 * * ?"
 //    "0 50 14 * * ?"
 
-
-    @Scheduled(cron = "0 50 14 * * ?")
+    @Scheduled(cron =  "0 50 14 * * ?")
     fun sendRecurringInvoices() {
         val currentDateTime = LocalDateTime.now()
         val currentDate = currentDateTime.toLocalDate()
