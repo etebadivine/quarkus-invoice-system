@@ -9,7 +9,7 @@ import jakarta.persistence.TypedQuery
 import jakarta.transaction.Transactional
 import org.generis.base.exception.ServiceException
 import org.generis.base.integrations.RecurringInvoice
-import org.generis.business.customer.repo.Customer
+import org.generis.business.company.repo.Company
 import org.generis.business.product.repo.Product
 import org.generis.business.subscription.dto.CreateSubscriptionDto
 import org.generis.business.subscription.enums.SubscriptionState
@@ -33,7 +33,7 @@ class SubscriptionServiceImpl: SubscriptionService{
 
     override fun createSubscription(createSubscriptionDto: CreateSubscriptionDto): Subscription? {
 
-        val customer = entityManager.find(Customer::class.java, createSubscriptionDto.customerId)
+        val customer = entityManager.find(Company::class.java, createSubscriptionDto.customerId)
             ?: throw IllegalArgumentException("Invalid customerId")
 
         val subscription = Subscription()
@@ -46,47 +46,38 @@ class SubscriptionServiceImpl: SubscriptionService{
         subscription.recurringPeriod = createSubscriptionDto.recurringPeriod
         subscription.nextInvoiceDate = LocalDate.now()
         subscription.createdDate = LocalDateTime.now()
-        subscription.tax = createSubscriptionDto.tax
-        subscription.discount = createSubscriptionDto.discount
 
+        var subTotal = 0.00
         for (itemDto in createSubscriptionDto.items) {
             val product = entityManager.find(Product::class.java, itemDto.productId)
                 ?: throw IllegalArgumentException("Invalid productId")
 
             val startDate = subscription.startDate
-            val itemTotal = if (createSubscriptionDto.recurringPeriod.toInt() == 30 && startDate!!.dayOfMonth >= 20) {
-                product.unitPrice?.div(2)?.times(itemDto.quantity!!)?.times(customer.currency!!.exchangeRate!!)
+            val total = if (createSubscriptionDto.recurringPeriod.toInt() == 30 && startDate!!.dayOfMonth >= 20) {
+                product.unitPrice?.div(2)?.times(itemDto.quantity!!)
             } else {
-                product.unitPrice?.times(itemDto.quantity!!)?.times(customer.currency!!.exchangeRate!!)
+                product.unitPrice?.times(itemDto.quantity!!)
             }
 
-            // Create the InvoiceItem instance
+            // Create the SubscriptionItem instance
             val subscriptionItems = SubscriptionItem()
             subscriptionItems.productId = product
             subscriptionItems.quantity = itemDto.quantity
-            subscriptionItems.totalAmount = itemTotal
+            subscriptionItems.totalAmount = total
             subscriptionItems.subscription = subscription
 
-            // Add the invoice item to the invoice
+            // Add the subscription item to the subscription
             subscription.items.add(subscriptionItems)
 
-            // Apply tax and discount to calculate the total
-            val discountPercent = createSubscriptionDto.discount
-            val discountAmount = itemTotal?.times((discountPercent?.div(100.0)?: 0.0))
-
-            val taxPercent = createSubscriptionDto.tax
-            val taxAmount = itemTotal?.times((taxPercent?.div(100.0)?: 0.0))
-
-            // Apply tax and discount to calculate the total
-            if (itemTotal != null) {
-               val totalAmount = itemTotal + taxAmount!! - discountAmount!!
-                subscription.totalAmount = totalAmount.toBigDecimal().setScale(4, RoundingMode.UP).toDouble()
+            if (total != null) {
+                subTotal += total
             }
-
-            subscription.totalAmount = itemTotal
         }
 
+        subscription.totalAmount = subTotal.toBigDecimal().setScale(4, RoundingMode.UP).toDouble()
+
         entityManager.persist(subscription)
+
         updateNextInvoiceDate(subscription)
         updateSubscription(subscription)
         sendMailAlert(subscription)

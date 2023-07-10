@@ -5,11 +5,11 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import org.generis.base.domain.CODE_SUCCESS
 import org.generis.base.exception.ServiceException
-import org.generis.business.customer.boundary.http.CustomerResourceImpl
+import org.generis.business.company.boundary.http.CompanyResourceImpl
 import org.generis.business.customer.dto.CreateCustomerDto
-import org.generis.business.customer.dto.UpdateCustomerDto
-import org.generis.business.customer.repo.Customer
-import org.generis.business.customer.service.CustomerService
+import org.generis.business.company.dto.UpdateCompanyDto
+import org.generis.business.company.repo.Company
+import org.generis.business.company.service.CompanyService
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
@@ -20,10 +20,10 @@ import uk.co.jemos.podam.api.PodamFactoryImpl
 internal class CustomerResourceImplTest {
 
     @MockK
-    private lateinit var service: CustomerService
+    private lateinit var service: CompanyService
 
     @InjectMockKs
-    private lateinit var underTest: CustomerResourceImpl
+    private lateinit var underTest: CompanyResourceImpl
 
     private val factory : PodamFactoryImpl = PodamFactoryImpl()
 
@@ -42,7 +42,7 @@ internal class CustomerResourceImplTest {
     fun create() {
         //GIVEN
         val request = factory.manufacturePojoWithFullData(CreateCustomerDto::class.java)
-        val createdCustomer = factory.manufacturePojo(Customer::class.java)
+        val createdCustomer = factory.manufacturePojo(Company::class.java)
         every { service.createCustomer(any()) } returns createdCustomer
 
         // WHEN
@@ -76,7 +76,7 @@ internal class CustomerResourceImplTest {
     fun getCustomer() {
         // GIVEN
         val customerId = "123"
-        val customer = factory.manufacturePojo(Customer::class.java)
+        val customer = factory.manufacturePojo(Company::class.java)
         every { service.getCustomer(customerId) } returns customer
 
         // WHEN
@@ -105,8 +105,8 @@ internal class CustomerResourceImplTest {
     fun updateCustomer() {
         // GIVEN
         val customerId = "123"
-        val updateCustomerDto = factory.manufacturePojo(UpdateCustomerDto::class.java)
-        val updatedCustomer = factory.manufacturePojo(Customer::class.java)
+        val updateCustomerDto = factory.manufacturePojo(UpdateCompanyDto::class.java)
+        val updatedCustomer = factory.manufacturePojo(Company::class.java)
         every { service.updateCustomer(customerId, updateCustomerDto) } returns updatedCustomer
 
         // WHEN
@@ -121,7 +121,7 @@ internal class CustomerResourceImplTest {
     fun `cannot update customer when customer is not found`() {
         // GIVEN
         val customerId = "123"
-        val updateCustomerDto = factory.manufacturePojo(UpdateCustomerDto::class.java)
+        val updateCustomerDto = factory.manufacturePojo(UpdateCompanyDto::class.java)
         every { service.updateCustomer(customerId, updateCustomerDto) } returns null
 
         // WHEN
@@ -136,7 +136,7 @@ internal class CustomerResourceImplTest {
     @Test
     fun getAllCustomers() {
         // GIVEN
-        val customers = factory.manufacturePojoWithFullData(Customer::class.java)
+        val customers = factory.manufacturePojoWithFullData(Company::class.java)
         every { service.getAllCustomers() } returns listOf(customers)
 
         // WHEN
@@ -157,7 +157,7 @@ internal class CustomerResourceImplTest {
 
         // THEN
         assertEquals(CODE_SUCCESS, response.code)
-        assertEquals(emptyList<Customer>(), response.data)
+        assertEquals(emptyList<Company>(), response.data)
         verify { service.getAllCustomers() }
     }
 

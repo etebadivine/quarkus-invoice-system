@@ -10,6 +10,8 @@ import org.generis.business.currency.repo.Currency
 import org.generis.business.customer.dto.CreateCustomerDto
 import org.generis.business.customer.dto.UpdateCustomerDto
 import org.generis.business.customer.repo.Customer
+import org.generis.business.invoice.repo.Invoice
+import org.generis.business.subscription.repo.Subscription
 import org.modelmapper.ModelMapper
 
 
@@ -23,12 +25,12 @@ class CustomerServiceImpl : CustomerService {
     private val modelMapper = ModelMapper()
 
     override fun getCustomer(id: String): Customer? {
-        return entityManager?.find(Customer::class.java, id) ?:
+        return entityManager.find(Customer::class.java, id) ?:
         throw ServiceException(-1, "No customer found with id $id")
     }
 
     override fun getCustomerByName(customerName: String): Customer? {
-        val query: TypedQuery<Customer> = entityManager!!.createQuery(
+        val query: TypedQuery<Customer> = entityManager.createQuery(
             "SELECT c FROM Customer c WHERE c.name = :name",
             Customer::class.java
         )
@@ -38,14 +40,14 @@ class CustomerServiceImpl : CustomerService {
     }
 
     override fun getAllCustomers(): List<Customer> {
-        val query = entityManager?.createQuery("SELECT c FROM Customer c", Customer::class.java)
+        val query = entityManager.createQuery("SELECT c FROM Customer c", Customer::class.java)
         return query?.resultList ?: throw ServiceException(-1, "No customers found")
     }
 
     override fun createCustomer(createCustomerDto: CreateCustomerDto): Customer? {
         val customer = modelMapper.map(createCustomerDto, Customer::class.java)
 
-        val currency = entityManager!!.find(Currency::class.java, createCustomerDto.currency)
+        val currency = entityManager.find(Currency::class.java, createCustomerDto.currency)
             ?:  throw ServiceException(-1, "No currency found")
 
         customer.currency =  currency
@@ -55,7 +57,7 @@ class CustomerServiceImpl : CustomerService {
     }
 
     override fun updateCustomer(id: String?, updateCustomerDto: UpdateCustomerDto): Customer? {
-        val customer = entityManager!!.find(Customer::class.java, id)
+        val customer = entityManager.find(Customer::class.java, id)
             ?:  throw ServiceException(-1, "No customer found with id $id")
 
         val currency = entityManager!!.find(Currency::class.java, id)
@@ -73,11 +75,29 @@ class CustomerServiceImpl : CustomerService {
     }
 
     override fun deleteCustomerById(id: String) {
-        val customer = entityManager?.find(Customer::class.java, id)
+        val customer = entityManager.find(Customer::class.java, id)
         if (customer == null) {
             throw ServiceException(-1, "Customer not found")
         } else {
-            entityManager?.remove(customer)
+            val invoices = entityManager.createQuery("SELECT i FROM Invoice i WHERE i.customerId = :customer", Invoice::class.java)
+                .setParameter("customer", customer)
+                .resultList
+
+            for (invoice in invoices) {
+                invoice.customerId = null
+                entityManager.remove(invoice)
+            }
+
+            val subscriptions = entityManager.createQuery("SELECT s FROM Subscription s WHERE s.customerId = :customer", Subscription::class.java)
+                .setParameter("customer", customer)
+                .resultList
+
+            for (subscription in subscriptions) {
+                subscription.customerId = null
+                entityManager.merge(subscription)
+            }
+
+            entityManager.remove(customer)
         }
     }
 }

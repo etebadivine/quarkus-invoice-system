@@ -3,7 +3,7 @@ package org.generis.business.invoice.repo
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase
 import jakarta.persistence.*
 import org.generis.business.currency.repo.Currency
-import org.generis.business.customer.repo.Customer
+import org.generis.business.company.repo.Company
 import org.generis.business.invoice.enums.InvoiceStatus
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.GenericGenerator
@@ -29,7 +29,7 @@ class Invoice : PanacheEntityBase() {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id")
-    var customerId: Customer? = null
+    var customerId: Company? = null
 
     @Column(name = "invoice_number")
     var invoiceNumber: String? = null

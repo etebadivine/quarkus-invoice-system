@@ -6,7 +6,7 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import org.generis.base.exception.ServiceException
 import org.generis.business.currency.repo.Currency
-import org.generis.business.customer.repo.Customer
+import org.generis.business.company.repo.Company
 import org.generis.business.invoice.dto.CreateInvoiceDto
 import org.generis.business.invoice.dto.UpdateInvoiceStatusDto
 import org.generis.business.invoice.repo.Invoice
@@ -27,7 +27,7 @@ class InvoiceServiceImpl: InvoiceService {
 
     override fun createInvoice(createInvoiceDto: CreateInvoiceDto): Invoice? {
         // Retrieve the customer based on the customerId from the database
-        val customer = entityManager.find(Customer::class.java, createInvoiceDto.customerId)
+        val customer = entityManager.find(Company::class.java, createInvoiceDto.customerId)
             ?: throw IllegalArgumentException("Invalid customerId")
 
         val currency = entityManager!!.find(Currency::class.java, createInvoiceDto.currency)
@@ -46,43 +46,44 @@ class InvoiceServiceImpl: InvoiceService {
         invoice.tax = createInvoiceDto.tax
         invoice.discount = createInvoiceDto.discount
 
-        // Calculate the subtotal and total based on the invoice items
-        var subtotal = 0.00
+        // Calculate the subTotal and total based on the invoice items
+        var subTotal = 0.00
         for (itemDto in createInvoiceDto.items) {
             // Retrieve the product based on the productId from the database
             val product = entityManager.find(Product::class.java, itemDto.productId)
                 ?: throw IllegalArgumentException("Invalid productId")
 
             // Calculate the total for the invoice item based on the product price and quantity
-            val itemTotal = product.unitPrice?.times(itemDto.quantity!!)?.times(currency.exchangeRate!!)
+            val total = product.unitPrice?.times(itemDto.quantity!!)
 
             // Create the InvoiceItem instance
             val invoiceItem = InvoiceItem()
             invoiceItem.productId = product
             invoiceItem.quantity = itemDto.quantity
-            invoiceItem.totalAmount = itemTotal
+            invoiceItem.totalAmount = total
             invoiceItem.invoice = invoice
 
             // Add the invoice item to the invoice
             invoice.items.add(invoiceItem)
 
-            // Update the subtotal
-            if (itemTotal != null) {
-                subtotal += itemTotal
+            // Update the subTotal
+            if (total != null) {
+                subTotal += total
             }
         }
 
+        invoice.subTotal = subTotal
+
         // Apply tax and discount to calculate the total
         val discountPercent = createInvoiceDto.discount
-        val discountAmount = subtotal * (discountPercent?.div(100)?: 0.0)
+        val discountAmount = subTotal * (discountPercent?.div(100)?: 0.0)
 
         val taxPercent = createInvoiceDto.tax
-        val taxAmount = subtotal * (taxPercent?.div(100)?: 0.0)
+        val taxAmount = subTotal * (taxPercent?.div(100)?: 0.0)
 
         // Apply tax and discount to calculate the total
-        invoice.subTotal = subtotal
 
-        val totalAmount = subtotal + taxAmount - discountAmount
+        val totalAmount = subTotal + taxAmount - discountAmount
         invoice.totalAmount =  totalAmount.toBigDecimal().setScale(4, RoundingMode.UP).toDouble()
 
         // Save the invoice to the database
