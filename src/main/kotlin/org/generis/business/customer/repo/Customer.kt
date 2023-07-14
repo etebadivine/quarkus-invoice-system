@@ -32,9 +32,6 @@ class Customer : PanacheEntityBase() {
     @Column(name = "city")
     var city: String? = null
 
-    @Column(name = "tax_number")
-    var taxNumber: String? = null
-
     @JoinColumn(name = "transaction_currency")
     @ManyToOne(fetch = FetchType.EAGER)
     var currency: Currency? = null

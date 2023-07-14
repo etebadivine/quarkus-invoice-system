@@ -1,5 +1,6 @@
 package org.generis.business.currency.boundary.http
 
+import io.quarkus.security.Authenticated
 import jakarta.inject.Inject
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
@@ -12,7 +13,7 @@ import org.generis.business.currency.repo.Currency
 import org.generis.business.currency.service.CurrencyService
 import org.slf4j.LoggerFactory
 
-
+@Authenticated
 @Path("currency")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)

@@ -1,5 +1,7 @@
 package org.generis.business.customer.boundary.http
 
+import io.quarkus.security.Authenticated
+import jakarta.annotation.security.RolesAllowed
 import jakarta.inject.Inject
 import jakarta.validation.Valid
 import jakarta.ws.rs.*
@@ -14,6 +16,8 @@ import org.generis.business.customer.service.CustomerService
 import org.slf4j.LoggerFactory
 
 
+//@RolesAllowed("ROLE_ADMIN")
+@Authenticated
 @Path("customers")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -23,6 +27,7 @@ class CustomerResourceImpl: CustomerResource {
 
     @Inject
     lateinit var customerService: CustomerService
+
     @POST
     override fun create(@Valid createCustomerDto: CreateCustomerDto): ApiResponse<Customer?> {
         logger.info("http request: create")

@@ -11,6 +11,10 @@ import org.generis.business.customer.dto.CreateCustomerDto
 import org.generis.business.customer.dto.UpdateCustomerDto
 import org.generis.business.customer.repo.Customer
 import org.generis.business.invoice.repo.Invoice
+import org.generis.business.logs.dto.CreateLogDto
+import org.generis.business.logs.enums.LogAction
+import org.generis.business.logs.service.JwtService
+import org.generis.business.logs.service.LogService
 import org.generis.business.subscription.repo.Subscription
 import org.modelmapper.ModelMapper
 
@@ -21,6 +25,12 @@ class CustomerServiceImpl : CustomerService {
 
     @Inject
     lateinit var entityManager: EntityManager
+
+    @Inject
+    lateinit var logService: LogService
+
+    @Inject
+    lateinit var jwtService: JwtService
 
     private val modelMapper = ModelMapper()
 
@@ -41,7 +51,7 @@ class CustomerServiceImpl : CustomerService {
 
     override fun getAllCustomers(): List<Customer> {
         val query = entityManager.createQuery("SELECT c FROM Customer c", Customer::class.java)
-        return query?.resultList ?: throw ServiceException(-1, "No customers found")
+        return query.resultList ?: throw ServiceException(-1, "No customers found")
     }
 
     override fun createCustomer(createCustomerDto: CreateCustomerDto): Customer? {
@@ -53,6 +63,16 @@ class CustomerServiceImpl : CustomerService {
         customer.currency =  currency
 
         customer.persist()
+
+        val user =  jwtService.getUserInfo()
+
+        val createLog = CreateLogDto(
+            action = LogAction.CREATED_CUSTOMER,
+            target = customer.email!!,
+            userId = user.id
+        )
+        logService.createLog(createLog)
+
         return customer
     }
 
@@ -60,16 +80,24 @@ class CustomerServiceImpl : CustomerService {
         val customer = entityManager.find(Customer::class.java, id)
             ?:  throw ServiceException(-1, "No customer found with id $id")
 
-        val currency = entityManager!!.find(Currency::class.java, id)
-            ?:  throw ServiceException(-1, "No currency found with id $id")
+        val currency = entityManager.find(Currency::class.java, updateCustomerDto.currency)
+            ?:  throw ServiceException(-1, "No currency found")
 
         updateCustomerDto.name?.let { customer.name = it }
         updateCustomerDto.email?.let { customer.email = it }
         updateCustomerDto.phoneNumber?.let { customer.phoneNumber = it }
         updateCustomerDto.city?.let { customer.city = it }
         updateCustomerDto.country?.let { customer.country = it }
-        updateCustomerDto.taxNumber?.let { customer.taxNumber = it }
-        updateCustomerDto.currency?.let { currency.currencyName = it }
+        updateCustomerDto.currency?.let { customer.currency = currency }
+
+        val user =  jwtService.getUserInfo()
+
+        val createLog = CreateLogDto(
+            action = LogAction.UPDATED_CUSTOMER,
+            target = customer.name!!,
+            userId = user.id
+        )
+        logService.createLog(createLog)
 
         return customer
     }
@@ -98,6 +126,15 @@ class CustomerServiceImpl : CustomerService {
             }
 
             entityManager.remove(customer)
+
+            val user =  jwtService.getUserInfo()
+
+            val createLog = CreateLogDto(
+                action = LogAction.DELETED_CUSTOMER,
+                target = customer.name!!,
+                userId = user.id
+            )
+            logService.createLog(createLog)
         }
     }
 }

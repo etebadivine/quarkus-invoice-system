@@ -1,5 +1,7 @@
 package org.generis.business.product.boundary.http
 
+import io.quarkus.security.Authenticated
+import jakarta.annotation.security.RolesAllowed
 import jakarta.inject.Inject
 import jakarta.validation.Valid
 import jakarta.ws.rs.*
@@ -16,7 +18,7 @@ import org.slf4j.LoggerFactory
 
 
 //@RolesAllowed("ROLE_ADMIN")
-
+@Authenticated
 @Path("products")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)

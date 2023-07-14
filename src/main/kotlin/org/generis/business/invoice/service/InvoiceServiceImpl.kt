@@ -6,11 +6,15 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import org.generis.base.exception.ServiceException
 import org.generis.business.currency.repo.Currency
-import org.generis.business.company.repo.Company
+import org.generis.business.customer.repo.Customer
 import org.generis.business.invoice.dto.CreateInvoiceDto
 import org.generis.business.invoice.dto.UpdateInvoiceStatusDto
 import org.generis.business.invoice.repo.Invoice
 import org.generis.business.invoice.repo.InvoiceItem
+import org.generis.business.logs.dto.CreateLogDto
+import org.generis.business.logs.enums.LogAction
+import org.generis.business.logs.service.JwtService
+import org.generis.business.logs.service.LogService
 import org.generis.business.product.repo.Product
 import java.math.RoundingMode
 import java.time.LocalDate
@@ -25,10 +29,16 @@ class InvoiceServiceImpl: InvoiceService {
     @Inject
     lateinit var entityManager: EntityManager
 
+    @Inject
+    lateinit var logService: LogService
+
+    @Inject
+    lateinit var jwtService: JwtService
+
     override fun createInvoice(createInvoiceDto: CreateInvoiceDto): Invoice? {
         // Retrieve the customer based on the customerId from the database
-        val customer = entityManager.find(Company::class.java, createInvoiceDto.customerId)
-            ?: throw IllegalArgumentException("Invalid customerId")
+        val customer = entityManager.find(Customer::class.java, createInvoiceDto.customerId)
+            ?: throw IllegalArgumentException("Invalid customer id")
 
         val currency = entityManager!!.find(Currency::class.java, createInvoiceDto.currency)
             ?:  throw ServiceException(-1, "No currency found")
@@ -51,7 +61,7 @@ class InvoiceServiceImpl: InvoiceService {
         for (itemDto in createInvoiceDto.items) {
             // Retrieve the product based on the productId from the database
             val product = entityManager.find(Product::class.java, itemDto.productId)
-                ?: throw IllegalArgumentException("Invalid productId")
+                ?: throw IllegalArgumentException("Invalid product id")
 
             // Calculate the total for the invoice item based on the product price and quantity
             val total = product.unitPrice?.times(itemDto.quantity!!)
@@ -89,6 +99,15 @@ class InvoiceServiceImpl: InvoiceService {
         // Save the invoice to the database
         entityManager.persist(invoice)
 
+        val user =  jwtService.getUserInfo()
+
+        val createLog = CreateLogDto(
+            action = LogAction.CREATED_INVOICE,
+            target = invoice.invoiceNumber!!,
+            userId = user.id
+        )
+        logService.createLog(createLog)
+
         return invoice
     }
 
@@ -107,6 +126,15 @@ class InvoiceServiceImpl: InvoiceService {
 
         invoice.status = updateInvoiceStatusDto.status
 
+        val user =  jwtService.getUserInfo()
+
+        val createLog = CreateLogDto(
+            action = LogAction.UPDATED_INVOICE_STATUS,
+            target = invoice.invoiceNumber!!,
+            userId = user.id
+        )
+        logService.createLog(createLog)
+
         return entityManager.merge(invoice)
     }
 
@@ -116,6 +144,15 @@ class InvoiceServiceImpl: InvoiceService {
             ?: throw IllegalArgumentException("Invalid invoiceId")
 
         entityManager.remove(invoice)
+
+        val user =  jwtService.getUserInfo()
+
+        val createLog = CreateLogDto(
+            action = LogAction.DELETED_INVOICE,
+            target = invoice.invoiceNumber!!,
+            userId = user.id
+        )
+        logService.createLog(createLog)
     }
 }
 

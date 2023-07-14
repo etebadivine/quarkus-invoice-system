@@ -1,5 +1,7 @@
 package org.generis.business.invoice.boundary.http
 
+import io.quarkus.security.Authenticated
+import jakarta.annotation.security.RolesAllowed
 import jakarta.inject.Inject
 import jakarta.validation.Valid
 import jakarta.ws.rs.*
@@ -14,9 +16,11 @@ import org.generis.business.invoice.service.InvoiceService
 import org.modelmapper.ModelMapper
 import org.slf4j.LoggerFactory
 
-
+//@RolesAllowed("ROLE_ADMIN")
+@Authenticated
 @Path("invoices")
 @Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 class InvoiceResourceImpl : InvoiceResource {
 
     private val logger = LoggerFactory.getLogger(InvoiceResourceImpl::class.java)
@@ -26,7 +30,6 @@ class InvoiceResourceImpl : InvoiceResource {
     lateinit var invoiceService: InvoiceService
 
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
     override fun create(@Valid createInvoiceDto: CreateInvoiceDto): ApiResponse<Invoice?> {
         logger.info("http request: create")
 

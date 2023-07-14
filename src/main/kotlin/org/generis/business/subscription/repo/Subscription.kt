@@ -2,7 +2,7 @@ package org.generis.business.subscription.repo
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase
 import jakarta.persistence.*
-import org.generis.business.company.repo.Company
+import org.generis.business.customer.repo.Customer
 import org.generis.business.subscription.enums.SubscriptionState
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.GenericGenerator
@@ -25,7 +25,7 @@ class Subscription : PanacheEntityBase() {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id")
-    var customerId: Company? = null
+    var customerId: Customer? = null
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "subscription", cascade = [CascadeType.PERSIST, CascadeType.MERGE], orphanRemoval = true)
     var items: MutableList<SubscriptionItem> = mutableListOf()

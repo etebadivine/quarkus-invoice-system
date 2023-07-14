@@ -7,56 +7,131 @@ import org.generis.business.subscription.repo.Subscription
 @Singleton
 class RecurringInvoice {
     fun generateInvoiceHtml(subscription: Subscription): String {
-        val stringBuilder = StringBuilder()
+        return """
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Invoice</title>
+        <style>
+          body {
+            font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+          }
 
-        stringBuilder.append("<html>")
-        stringBuilder.append("<head>")
-        stringBuilder.append("<title>Invoice</title>")
-        stringBuilder.append("<style>")
-        stringBuilder.append("body { font-family: 'Geneva', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #e6f7ff; }")
-        stringBuilder.append(".invoice-card { max-width: 450px; margin: 0 auto; background-color: #E3F6F5; border-radius: 5px; border-color: #10375C; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }")
-        stringBuilder.append(".invoice-header { background-color: #10375C; color: #ffffff; padding: 20px; border-top-left-radius: 5px; border-top-right-radius: 5px; }")
-        stringBuilder.append(".invoice-title { margin: 0; font-size: 18px; font-weight: bold; }")
-        stringBuilder.append(".invoice-body { padding: 20px; }")
-        stringBuilder.append(".invoice-items { list-style-type: none; padding-left: 1px; }")
-        stringBuilder.append(".invoice-item { margin-bottom: 20px; }")
-        stringBuilder.append(".invoice-item-product { font-weight: bold; }")
-        stringBuilder.append(".invoice-item-details { margin-top: 5px; color: #666; }")
-        stringBuilder.append(".invoice-item-amount { font-weight: bold; }")
-        stringBuilder.append(".invoice-total-amount { font-weight: bold; padding-left: 1px;  margin-top: 4px; font-family: 'Tahoma' }")
-        stringBuilder.append("</style>")
-        stringBuilder.append("</head>")
-        stringBuilder.append("<body>")
+          .invoice {
+            width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #cccccc;
+          }
 
-        stringBuilder.append("<div class=\"invoice-card\">")
-        stringBuilder.append("<div class=\"invoice-header\">")
-        stringBuilder.append("<h3 class=\"invoice-title\">Dear Customer ${subscription?.customerId?.name},</h3>")
-        stringBuilder.append("<h3 class=\"invoice-title\">Here is a breakdown of your subscription:</h3>")
-        stringBuilder.append("</div>")
+          .invoice-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            background-color: #2b3a67;
+            font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande", "Lucida Sans Unicode", Geneva, Verdana, sans-serif
+          }
 
-        stringBuilder.append("<div class=\"invoice-body\">")
+          .invoice-header h1 {
+            font-size: 24px;
+            margin: 0;
+            color: #fff;
+          }
 
-        stringBuilder.append("<h3 class=\"invoice-title\">Items:</h3>")
-        stringBuilder.append("<ul class=\"invoice-items\">")
+          .invoice-details {
+            margin-bottom: 20px;
+          }
+
+          .invoice-details p {
+            margin: 0;
+             font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+            "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+          }
+
+          .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+            "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+          }
+
+          .invoice-table th,
+          .invoice-table td {
+            padding: 8px;
+            border: 1px solid #ccc;
+          }
+
+          .invoice-table th {
+            background-color: #2b3a67;
+            color: #fff;
+          }
+
+          .invoice-total {
+            text-align: right;
+          }
+          
+          .invoice-total p {
+            margin: 0;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="invoice">
+          <div class="invoice-header">
+            <div>
+              <h4 style="color: #fff; padding-left: 20px;">nsano</h4>
+            </div>
+            <div>
+              <h1 style=" padding-left: 365px; padding-top: 9px">INVOICE</h1>
+            </div>
+          </div>
+          <div class="invoice-details">
+            <p>Invoice Number: ${subscription.subscriptionNumber}</p>
+            <p>Dear customer ${subscription.customerId?.name}, here is a breakdown of your subscription</p>
+          </div>
+          <table class="invoice-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Sub Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${generateTableRows(subscription)}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3">Total Amount</td>
+                <td>${subscription.customerId?.currency?.currencyCode}${subscription.totalAmount}</td>
+              </tr>
+            </tfoot>
+          </table>
+          <div class="invoice-total">
+            <p>Payment Due: ${subscription.nextInvoiceDate}</p>
+          </div>
+        </div>
+      </body>
+    </html>
+    """.trimIndent()
+    }
+
+    private fun generateTableRows(subscription: Subscription): String {
+        var tableRows = ""
         for (item in subscription.items) {
-            stringBuilder.append("<li class=\"invoice-item\">")
-            stringBuilder.append("<div class=\"invoice-item-product\">Product :  ${item?.productId?.productName}</div>")
-            stringBuilder.append("<div class=\"invoice-item-details\">")
-            stringBuilder.append("<div>Quantity: ${item.quantity}</div>")
-            stringBuilder.append("<div class=\"invoice-item-amount\">Price: ${subscription.customerId?.currency?.currencyCode}${item.productId?.unitPrice}</div>")
-            stringBuilder.append("<div class=\"invoice-item-amount\">SubTotal: ${subscription.customerId?.currency?.currencyCode}${item.totalAmount}</div>")
-            stringBuilder.append("</div>")
-            stringBuilder.append("</li>")
+            tableRows += """
+            <tr>
+              <td>${item.productId?.productName}</td>
+              <td>${item.quantity}</td>
+              <td>${subscription.customerId?.currency?.currencyCode}${item.productId?.unitPrice}</td>
+              <td>${subscription.customerId?.currency?.currencyCode}${item.totalAmount}</td>
+            </tr>
+        """
         }
-        stringBuilder.append("</ul>")
-        stringBuilder.append("<h3 class=\"invoice-total-amount\">Total Amount: ${subscription.customerId?.currency?.currencyCode}  ${subscription.totalAmount}</h3>")
-        stringBuilder.append("</div>")
-
-        stringBuilder.append("</div>")
-
-        stringBuilder.append("</body>")
-        stringBuilder.append("</html>")
-
-        return stringBuilder.toString()
+        return tableRows
     }
 }

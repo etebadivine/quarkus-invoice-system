@@ -1,5 +1,7 @@
 package org.generis.business.subscription.boundary.http
 
+import io.quarkus.security.Authenticated
+import jakarta.annotation.security.RolesAllowed
 import jakarta.inject.Inject
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
@@ -12,7 +14,8 @@ import org.generis.business.subscription.repo.Subscription
 import org.generis.business.subscription.service.SubscriptionService
 import org.slf4j.LoggerFactory
 
-
+//@RolesAllowed("ROLE_ADMIN")
+@Authenticated
 @Path("subscriptions")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)

@@ -6,6 +6,10 @@ import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.transaction.Transactional
 import org.generis.base.exception.ServiceException
+import org.generis.business.logs.dto.CreateLogDto
+import org.generis.business.logs.enums.LogAction
+import org.generis.business.logs.service.JwtService
+import org.generis.business.logs.service.LogService
 import org.generis.business.product.dto.CreateProductDto
 import org.generis.business.product.dto.UpdateProductDto
 import org.generis.business.product.enums.ProductState
@@ -21,6 +25,12 @@ class ProductServiceImpl: ProductService {
     lateinit var entityManager: EntityManager
 
     private val modelMapper = ModelMapper()
+
+    @Inject
+    lateinit var logService: LogService
+
+    @Inject
+    lateinit var jwtService: JwtService
 
     override fun getProduct(id: String): Product {
         return entityManager.find(Product::class.java, id) ?:
@@ -53,6 +63,16 @@ class ProductServiceImpl: ProductService {
     override fun createProduct(createProductDto: CreateProductDto): Product? {
         val product = modelMapper.map(createProductDto, Product::class.java)
         product.persist()
+
+        val user =  jwtService.getUserInfo()
+
+        val createLog = CreateLogDto(
+            action = LogAction.CREATED_PRODUCT,
+            target = product.productName!!,
+            userId = user.id
+        )
+        logService.createLog(createLog)
+
         return product
     }
 
@@ -65,6 +85,15 @@ class ProductServiceImpl: ProductService {
         updateProductDto.description?.let { product.description = it }
         updateProductDto.productState?.let { product.productState = it }
 
+        val user =  jwtService.getUserInfo()
+
+        val createLog = CreateLogDto(
+            action = LogAction.UPDATED_PRODUCT,
+            target = product.productName!!,
+            userId = user.id
+        )
+        logService.createLog(createLog)
+
         return product
     }
 
@@ -73,7 +102,16 @@ class ProductServiceImpl: ProductService {
         if (product == null) {
             throw ServiceException(-1, "Product not found")
         } else {
-            entityManager?.remove(product)
+            entityManager.remove(product)
         }
+
+        val user =  jwtService.getUserInfo()
+
+        val createLog = CreateLogDto(
+            action = LogAction.DELETED_PRODUCT,
+            target = product.productName!!,
+            userId = user.id
+        )
+        logService.createLog(createLog)
     }
 }

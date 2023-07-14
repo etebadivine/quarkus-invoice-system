@@ -112,6 +112,10 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-smallrye-openapi</artifactId>
     </dependency>
+<!--    <dependency>-->
+<!--      <groupId>io.quarkus</groupId>-->
+<!--      <artifactId>quarkus-smallrye-jwt</artifactId>-->
+<!--    </dependency>-->
       <!-- https://mvnrepository.com/artifact/uk.co.jemos.podam/podam -->
       <dependency>
           <groupId>uk.co.jemos.podam</groupId>

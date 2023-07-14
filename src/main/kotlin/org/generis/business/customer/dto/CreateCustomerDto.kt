@@ -7,6 +7,5 @@ data class CreateCustomerDto(
     var phoneNumber: String,
     var country: String,
     var city: String,
-    var taxNumber: String,
     var currency: String
 )

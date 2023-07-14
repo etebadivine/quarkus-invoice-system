@@ -9,7 +9,11 @@ import jakarta.persistence.TypedQuery
 import jakarta.transaction.Transactional
 import org.generis.base.exception.ServiceException
 import org.generis.base.integrations.RecurringInvoice
-import org.generis.business.company.repo.Company
+import org.generis.business.customer.repo.Customer
+import org.generis.business.logs.dto.CreateLogDto
+import org.generis.business.logs.enums.LogAction
+import org.generis.business.logs.service.JwtService
+import org.generis.business.logs.service.LogService
 import org.generis.business.product.repo.Product
 import org.generis.business.subscription.dto.CreateSubscriptionDto
 import org.generis.business.subscription.enums.SubscriptionState
@@ -31,10 +35,16 @@ class SubscriptionServiceImpl: SubscriptionService{
     @Inject
     lateinit var mailer: Mailer
 
+    @Inject
+    lateinit var logService: LogService
+
+    @Inject
+    lateinit var jwtService: JwtService
+
     override fun createSubscription(createSubscriptionDto: CreateSubscriptionDto): Subscription? {
 
-        val customer = entityManager.find(Company::class.java, createSubscriptionDto.customerId)
-            ?: throw IllegalArgumentException("Invalid customerId")
+        val customer = entityManager.find(Customer::class.java, createSubscriptionDto.customerId)
+            ?: throw IllegalArgumentException("Invalid customer id")
 
         val subscription = Subscription()
         subscription.subscriptionNumber = subscription.generateSubscriptionNumber()
@@ -78,6 +88,15 @@ class SubscriptionServiceImpl: SubscriptionService{
 
         entityManager.persist(subscription)
 
+        val user =  jwtService.getUserInfo()
+
+        val createLog = CreateLogDto(
+            action = LogAction.CREATED_SUBSCRIPTION,
+            target = subscription.subscriptionNumber!!,
+            userId = user.id
+        )
+        logService.createLog(createLog)
+
         updateNextInvoiceDate(subscription)
         updateSubscription(subscription)
         sendMailAlert(subscription)
@@ -101,6 +120,15 @@ class SubscriptionServiceImpl: SubscriptionService{
         subscription?.let {
             it.status = SubscriptionState.CANCELED
         }
+
+        val user =  jwtService.getUserInfo()
+
+        val createLog = CreateLogDto(
+            action = LogAction.CANCEL_SUBSCRIPTION,
+            target = subscription.subscriptionNumber!!,
+            userId = user.id
+        )
+        logService.createLog(createLog)
     }
 
     override fun reactivateSubscription(id: String) {
@@ -108,11 +136,20 @@ class SubscriptionServiceImpl: SubscriptionService{
         subscription?.let {
             it.status = SubscriptionState.ACTIVE
         }
+
+        val user =  jwtService.getUserInfo()
+
+        val createLog = CreateLogDto(
+            action = LogAction.REACTIVATED_SUBSCRIPTION,
+            target = subscription.subscriptionNumber!!,
+            userId = user.id
+        )
+        logService.createLog(createLog)
     }
 
     private fun sendMailAlert(subscription:Subscription){
         mailer.send(Mail.withText(subscription.customerId?.email,
-            "Dear ${subscription.customerId?.name},Thank You For Subscribing,",
+            "Hello ${subscription.customerId?.name},thank You For Subscribing",
             "Your first payment is due on ${subscription.nextInvoiceDate}"))
     }
 
