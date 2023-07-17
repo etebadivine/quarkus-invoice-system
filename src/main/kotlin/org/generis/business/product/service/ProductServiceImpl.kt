@@ -46,12 +46,12 @@ class ProductServiceImpl: ProductService {
         return query.singleResult
     }
 
-    override fun geProductByType(productState: ProductState): List<Product> {
+    override fun getProductByType(): List<Product> {
         val query: TypedQuery<Product> = entityManager.createQuery(
             "SELECT p FROM Product p WHERE p.productState = :productState",
             Product::class.java
         )
-        query.setParameter("productState", productState)
+        query.setParameter("productState", ProductState.RECURRING)
         return query.resultList
     }
 

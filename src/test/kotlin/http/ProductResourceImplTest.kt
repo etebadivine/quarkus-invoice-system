@@ -8,7 +8,6 @@ import org.generis.base.exception.ServiceException
 import org.generis.business.product.boundary.http.ProductResourceImpl
 import org.generis.business.product.dto.CreateProductDto
 import org.generis.business.product.dto.UpdateProductDto
-import org.generis.business.product.enums.ProductState
 import org.generis.business.product.repo.Product
 import org.generis.business.product.service.ProductService
 import org.junit.jupiter.api.AfterEach
@@ -100,36 +99,33 @@ internal class ProductResourceImplTest {
         verify { service.getProduct(productId) }
     }
 
+
     @Test
-    fun geProductByType() {
+    fun getProductByType() {
         // GIVEN
-        val productType = ProductState.RECURRING
         val products = factory.manufacturePojo(Product::class.java)
-        every { service.geProductByType(productType) } returns listOf(products)
+        every { service.getProductByType() } returns listOf(products)
 
         // WHEN
-        val expected = underTest.geProductByType(productType)
+        val expected = underTest.getProductByType()
 
         // THEN
         assertEquals(CODE_SUCCESS, expected.code)
-        assertEquals(listOf(products), expected.data)
-        verify { service.geProductByType(productType) }
-
+        verify { service.getProductByType() }
     }
 
     @Test
     fun `Get product by type when no product is found`() {
         // GIVEN
-        val productType = ProductState.RECURRING
-        every { service.geProductByType(productType) } returns emptyList()
+        every { service.getProductByType() } returns emptyList()
 
         // WHEN
-        val response = underTest.geProductByType(productType)
+        val expected = underTest.getProductByType()
 
         // THEN
-        assertEquals(CODE_SUCCESS, response.code)
-        assertEquals(emptyList<Product>(), response.data)
-        verify { service.geProductByType(productType) }
+        assertEquals(CODE_SUCCESS, expected.code)
+        assertEquals(emptyList<Product>(), expected.data)
+        verify { service.getProductByType() }
     }
 
     @Test
@@ -180,7 +176,7 @@ internal class ProductResourceImplTest {
     }
 
     @Test
-    fun `cannot get all customers because they do not exist`() {
+    fun `cannot get all products because they do not exist`() {
         // GIVEN
         every { service.getAllProducts() } returns emptyList()
 

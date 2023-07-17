@@ -11,7 +11,6 @@ import org.generis.base.util.wrapSuccessInResponse
 import org.generis.business.product.boundary.ProductResource
 import org.generis.business.product.dto.CreateProductDto
 import org.generis.business.product.dto.UpdateProductDto
-import org.generis.business.product.enums.ProductState
 import org.generis.business.product.repo.Product
 import org.generis.business.product.service.ProductService
 import org.slf4j.LoggerFactory
@@ -50,9 +49,9 @@ class ProductResourceImpl: ProductResource {
     }
 
     @GET
-    @Path("/type/{productType}")
-    override fun geProductByType(@PathParam("productType") productType: ProductState): ApiResponse<List<Product>> {
-        val products = productService.geProductByType(productType)
+    @Path("/recurring")
+    override fun getProductByType(): ApiResponse<List<Product>> {
+        val products = productService.getProductByType()
         return wrapSuccessInResponse(products)
     }
 

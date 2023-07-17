@@ -4,7 +4,6 @@ import jakarta.validation.Valid
 import org.generis.base.domain.ApiResponse
 import org.generis.business.product.dto.CreateProductDto
 import org.generis.business.product.dto.UpdateProductDto
-import org.generis.business.product.enums.ProductState
 import org.generis.business.product.repo.Product
 
 interface ProductResource {
@@ -13,7 +12,7 @@ interface ProductResource {
 
     fun getProduct(id: String): ApiResponse<Product?>
 
-    fun geProductByType(productType: ProductState): ApiResponse<List<Product>>
+    fun getProductByType(): ApiResponse<List<Product>>
 
     fun updateProduct(id: String, updateProductDto: UpdateProductDto): ApiResponse<Product?>
 
