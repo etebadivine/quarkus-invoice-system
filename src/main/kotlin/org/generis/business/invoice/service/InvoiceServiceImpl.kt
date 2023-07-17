@@ -40,8 +40,13 @@ class InvoiceServiceImpl: InvoiceService {
         val customer = entityManager.find(Customer::class.java, createInvoiceDto.customerId)
             ?: throw IllegalArgumentException("Invalid customer id")
 
-        val currency = entityManager!!.find(Currency::class.java, createInvoiceDto.currency)
-            ?:  throw ServiceException(-1, "No currency found")
+        val currencyCode = createInvoiceDto.currency
+
+        val currency = if (currencyCode != null) {
+            entityManager.find(Currency::class.java, currencyCode)
+        } else {
+            null
+        }
 
         // Create the Invoice instance
         val invoice = Invoice()
@@ -63,8 +68,15 @@ class InvoiceServiceImpl: InvoiceService {
             val product = entityManager.find(Product::class.java, itemDto.productId)
                 ?: throw IllegalArgumentException("Invalid product id")
 
+            // Determine the exchange rate to use for the calculation
+            val exchangeRate = if (createInvoiceDto.useCustomerCurrency) {
+                customer.currency?.exchangeRate
+            } else {
+               currency?.exchangeRate
+            }
+
             // Calculate the total for the invoice item based on the product price and quantity
-            val total = product.unitPrice?.times(itemDto.quantity!!)
+            val total = product.unitPrice?.times(itemDto.quantity!!)?.times(exchangeRate ?: 1.0)
 
             // Create the InvoiceItem instance
             val invoiceItem = InvoiceItem()
