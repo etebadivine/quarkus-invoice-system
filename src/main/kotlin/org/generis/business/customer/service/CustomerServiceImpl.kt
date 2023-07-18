@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.transaction.Transactional
 import org.generis.base.exception.ServiceException
+import org.generis.business.country.repo.Country
 import org.generis.business.currency.repo.Currency
 import org.generis.business.customer.dto.CreateCustomerDto
 import org.generis.business.customer.dto.UpdateCustomerDto
@@ -57,10 +58,10 @@ class CustomerServiceImpl : CustomerService {
     override fun createCustomer(createCustomerDto: CreateCustomerDto): Customer? {
         val customer = modelMapper.map(createCustomerDto, Customer::class.java)
 
-        val currency = entityManager.find(Currency::class.java, createCustomerDto.currency)
-            ?:  throw ServiceException(-1, "No currency found")
+        val country = entityManager.find(Country::class.java, createCustomerDto.country)
+            ?:  throw ServiceException(-1, "No country found")
 
-        customer.currency =  currency
+        customer.country =  country
 
         customer.persist()
 
@@ -80,15 +81,14 @@ class CustomerServiceImpl : CustomerService {
         val customer = entityManager.find(Customer::class.java, id)
             ?:  throw ServiceException(-1, "No customer found with id $id")
 
-        val currency = entityManager.find(Currency::class.java, updateCustomerDto.currency)
-            ?:  throw ServiceException(-1, "No currency found")
+        val country = entityManager.find(Country::class.java, updateCustomerDto.country)
+            ?:  throw ServiceException(-1, "No country found")
 
         updateCustomerDto.name?.let { customer.name = it }
         updateCustomerDto.email?.let { customer.email = it }
         updateCustomerDto.phoneNumber?.let { customer.phoneNumber = it }
         updateCustomerDto.city?.let { customer.city = it }
-        updateCustomerDto.country?.let { customer.country = it }
-        updateCustomerDto.currency?.let { customer.currency = currency }
+        updateCustomerDto.country?.let { customer.country = country }
 
         val user =  jwtService.getUserInfo()
 

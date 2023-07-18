@@ -5,7 +5,8 @@ import jakarta.inject.*
 import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import org.generis.base.exception.ServiceException
-import org.generis.business.currency.repo.Currency
+import org.generis.business.company.repo.Company
+import org.generis.business.country.repo.Country
 import org.generis.business.customer.repo.Customer
 import org.generis.business.invoice.dto.CreateInvoiceDto
 import org.generis.business.invoice.dto.UpdateInvoiceStatusDto
@@ -40,10 +41,14 @@ class InvoiceServiceImpl: InvoiceService {
         val customer = entityManager.find(Customer::class.java, createInvoiceDto.customerId)
             ?: throw IllegalArgumentException("Invalid customer id")
 
-        val currencyCode = createInvoiceDto.currency
+        val company = if (createInvoiceDto.company != null) {
+            entityManager.find(Company::class.java, createInvoiceDto.company)
+        } else {
+            null
+        }
 
-        val currency = if (currencyCode != null) {
-            entityManager.find(Currency::class.java, currencyCode)
+        val countryCurrency = if (createInvoiceDto.country != null) {
+            entityManager.find(Country::class.java, createInvoiceDto.country)
         } else {
             null
         }
@@ -57,7 +62,8 @@ class InvoiceServiceImpl: InvoiceService {
             LocalDate.parse(createInvoiceDto.dueDate, DateTimeFormatter.ofPattern("dd-MM-yyyy"))
         invoice.createdDate = LocalDateTime.now()
         invoice.customerId = customer
-        invoice.currency = currency
+        invoice.company = company
+        invoice.country = countryCurrency
         invoice.tax = createInvoiceDto.tax
         invoice.discount = createInvoiceDto.discount
 
@@ -69,14 +75,15 @@ class InvoiceServiceImpl: InvoiceService {
                 ?: throw IllegalArgumentException("Invalid product id")
 
             // Determine the exchange rate to use for the calculation
-            val exchangeRate = if (createInvoiceDto.useCustomerCurrency) {
-                customer.currency?.exchangeRate
-            } else {
-               currency?.exchangeRate
+
+            val exchangeRate = when {
+                createInvoiceDto.useCustomerCurrency -> customer.country?.exchangeRate
+                createInvoiceDto.useCompanyCurrency -> company?.country?.exchangeRate
+                else -> invoice.country?.exchangeRate?: 1.0
             }
 
             // Calculate the total for the invoice item based on the product price and quantity
-            val total = product.unitPrice?.times(itemDto.quantity!!)?.times(exchangeRate ?: 1.0)
+            val total = product.unitPrice?.times(itemDto.quantity!!)?.times(exchangeRate!!)
 
             // Create the InvoiceItem instance
             val invoiceItem = InvoiceItem()

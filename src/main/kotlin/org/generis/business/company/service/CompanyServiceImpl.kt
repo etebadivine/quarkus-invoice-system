@@ -6,9 +6,9 @@ import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
 import org.generis.base.exception.ServiceException
 import org.generis.business.company.dto.CreateCompanyDto
-import org.generis.business.currency.repo.Currency
 import org.generis.business.company.dto.UpdateCompanyDto
 import org.generis.business.company.repo.Company
+import org.generis.business.country.repo.Country
 import org.generis.business.invoice.repo.Invoice
 import org.generis.business.subscription.repo.Subscription
 import org.modelmapper.ModelMapper
@@ -37,10 +37,10 @@ class CompanyServiceImpl : CompanyService {
     override fun createCompany(createCompanyDto: CreateCompanyDto): Company? {
         val company = modelMapper.map(createCompanyDto, Company::class.java)
 
-        val currency = entityManager.find(Currency::class.java, createCompanyDto.currency)
-            ?:  throw ServiceException(-1, "No currency found")
+        val country = entityManager.find(Country::class.java, createCompanyDto.country)
+            ?:  throw ServiceException(-1, "No country found")
 
-        company.currency =  currency
+        company.country =  country
 
         company.persist()
         return company
@@ -50,24 +50,25 @@ class CompanyServiceImpl : CompanyService {
         val company = entityManager.find(Company::class.java, id)
             ?:  throw ServiceException(-1, "No company found with id $id")
 
-        val currency = entityManager!!.find(Currency::class.java, id)
-            ?:  throw ServiceException(-1, "No currency found with id $id")
+        val country = entityManager.find(Country::class.java, id)
+            ?:  throw ServiceException(-1, "No country found with id $id")
 
         updateCompanyDto.name?.let { company.name = it }
         updateCompanyDto.email?.let { company.email = it }
         updateCompanyDto.phoneNumber?.let { company.phoneNumber = it }
-        updateCompanyDto.currency?.let { currency.currencyName = it }
+        updateCompanyDto.address?.let { company.address = it }
+        updateCompanyDto.country?.let { country.countryName = it }
 
         return company
     }
 
     override fun deleteCompanyById(id: String) {
-        val customer = entityManager.find(Company::class.java, id)
-        if (customer == null) {
-            throw ServiceException(-1, "Customer not found")
+        val company = entityManager.find(Company::class.java, id)
+        if (company == null) {
+            throw ServiceException(-1, "Company not found")
         } else {
-            val invoices = entityManager.createQuery("SELECT i FROM Invoice i WHERE i.customerId = :customer", Invoice::class.java)
-                .setParameter("customer", customer)
+            val invoices = entityManager.createQuery("SELECT i FROM Invoice i WHERE i.company = :company", Invoice::class.java)
+                .setParameter("company", company)
                 .resultList
 
             for (invoice in invoices) {
@@ -75,8 +76,8 @@ class CompanyServiceImpl : CompanyService {
                 entityManager.remove(invoice)
             }
 
-            val subscriptions = entityManager.createQuery("SELECT s FROM Subscription s WHERE s.customerId = :customer", Subscription::class.java)
-                .setParameter("customer", customer)
+            val subscriptions = entityManager.createQuery("SELECT s FROM Subscription s WHERE s.company = :company", Subscription::class.java)
+                .setParameter("customer", company)
                 .resultList
 
             for (subscription in subscriptions) {
@@ -84,7 +85,7 @@ class CompanyServiceImpl : CompanyService {
                 entityManager.merge(subscription)
             }
 
-            entityManager.remove(customer)
+            entityManager.remove(company)
         }
     }
 

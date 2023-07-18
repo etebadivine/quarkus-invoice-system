@@ -7,5 +7,6 @@ data class UpdateCompanyDto(
     var name: String? = null,
     var email: String? = null,
     var phoneNumber: String? = null,
-    var currency: String? = null
+    var address: String? = null,
+    var country: String? = null
 )

@@ -107,7 +107,7 @@ class RecurringInvoice {
             <tfoot>
               <tr>
                 <td colspan="3">Total Amount</td>
-                <td>${subscription.customerId?.currency?.currencyCode}${subscription.totalAmount}</td>
+                <td>${subscription.customerId?.country?.currencyCode}${subscription.totalAmount}</td>
               </tr>
             </tfoot>
           </table>
@@ -127,8 +127,8 @@ class RecurringInvoice {
             <tr>
               <td>${item.productId?.productName}</td>
               <td>${item.quantity}</td>
-              <td>${subscription.customerId?.currency?.currencyCode}${item.productId?.unitPrice}</td>
-              <td>${subscription.customerId?.currency?.currencyCode}${item.totalAmount}</td>
+              <td>${subscription.customerId?.country?.currencyCode}${item.productId?.unitPrice}</td>
+              <td>${subscription.customerId?.country?.currencyCode}${item.totalAmount}</td>
             </tr>
         """
         }

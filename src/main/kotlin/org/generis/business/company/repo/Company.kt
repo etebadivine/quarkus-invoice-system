@@ -2,7 +2,7 @@ package org.generis.business.company.repo
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase
 import jakarta.persistence.*
-import org.generis.business.currency.repo.Currency
+import org.generis.business.country.repo.Country
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.GenericGenerator
 import java.time.LocalDateTime
@@ -26,9 +26,12 @@ class Company : PanacheEntityBase() {
     @Column(name = "phone_number")
     var phoneNumber: String? = null
 
-    @JoinColumn(name = "transaction_currency")
+    @Column(name = "address")
+    var address: String? = null
+
     @ManyToOne(fetch = FetchType.EAGER)
-    var currency: Currency? = null
+    @JoinColumn(name = "country")
+    var country: Country? = null
 
     @CreationTimestamp
     @Column(name = "created_date")

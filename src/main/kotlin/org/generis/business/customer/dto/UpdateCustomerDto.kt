@@ -9,5 +9,4 @@ data class UpdateCustomerDto(
     var phoneNumber: String? = null,
     var country: String? = null,
     var city: String? = null,
-    var currency: String? = null
 )

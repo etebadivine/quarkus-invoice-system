@@ -2,7 +2,8 @@ package org.generis.business.invoice.repo
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase
 import jakarta.persistence.*
-import org.generis.business.currency.repo.Currency
+import org.generis.business.company.repo.Company
+import org.generis.business.country.repo.Country
 import org.generis.business.customer.repo.Customer
 import org.generis.business.invoice.enums.InvoiceStatus
 import org.hibernate.annotations.CreationTimestamp
@@ -34,9 +35,13 @@ class Invoice : PanacheEntityBase() {
     @Column(name = "invoice_number")
     var invoiceNumber: String? = null
 
-    @JoinColumn(name = "transaction_currency")
     @ManyToOne(fetch = FetchType.EAGER)
-    var currency: Currency? = null
+    @JoinColumn(name = "transaction_country_currency")
+    var country: Country? = null
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "company")
+    var company: Company? = null
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "invoice", cascade = [CascadeType.PERSIST, CascadeType.MERGE], orphanRemoval = true)
     val items: MutableList<InvoiceItem> = mutableListOf()

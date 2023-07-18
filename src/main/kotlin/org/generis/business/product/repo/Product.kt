@@ -26,7 +26,6 @@ class Product : PanacheEntityBase() {
     @Column(name = "description")
     var description: String? = null
 
-
     @Column(name = "product_state")
     @Enumerated(value = EnumType.STRING)
     var productState: ProductState? = null
