@@ -8,6 +8,7 @@ import org.generis.base.exception.ServiceException
 import org.generis.business.company.dto.CreateCompanyDto
 import org.generis.business.company.dto.UpdateCompanyDto
 import org.generis.business.company.repo.Company
+import org.generis.business.company.repo.CompanyStaff
 import org.generis.business.country.repo.Country
 import org.generis.business.invoice.repo.Invoice
 import org.generis.business.subscription.repo.Subscription
@@ -28,21 +29,30 @@ class CompanyServiceImpl : CompanyService {
         throw ServiceException(-1, "No company found with id $id")
     }
 
-
     override fun getAllCompanies(): List<Company> {
         val query = entityManager.createQuery("SELECT c FROM Company c", Company::class.java)
         return query?.resultList ?: throw ServiceException(-1, "No companies found")
     }
 
     override fun createCompany(createCompanyDto: CreateCompanyDto): Company? {
-        val company = modelMapper.map(createCompanyDto, Company::class.java)
+        val company: Company = modelMapper.map(createCompanyDto, Company::class.java)
 
         val country = entityManager.find(Country::class.java, createCompanyDto.country)
-            ?:  throw ServiceException(-1, "No country found")
+            ?: throw ServiceException(-1, "No country found")
 
-        company.country =  country
+        company.country = country
 
-        company.persist()
+        // Map the list of staff from CompanyStaffDto to CompanyStaff entity and associate them with the company
+        val staffEntities = createCompanyDto.staff.map { staffDto ->
+            val staffEntity = modelMapper.map(staffDto, CompanyStaff::class.java)
+            staffEntity.company = company
+            staffEntity
+        }
+
+        company.staff.addAll(staffEntities)
+
+        entityManager.persist(company)
+
         return company
     }
 
@@ -77,7 +87,7 @@ class CompanyServiceImpl : CompanyService {
             }
 
             val subscriptions = entityManager.createQuery("SELECT s FROM Subscription s WHERE s.company = :company", Subscription::class.java)
-                .setParameter("customer", company)
+                .setParameter("company", company)
                 .resultList
 
             for (subscription in subscriptions) {

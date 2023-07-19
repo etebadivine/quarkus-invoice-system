@@ -9,6 +9,7 @@ import jakarta.persistence.TypedQuery
 import jakarta.transaction.Transactional
 import org.generis.base.exception.ServiceException
 import org.generis.base.integrations.RecurringInvoice
+import org.generis.business.company.repo.Company
 import org.generis.business.customer.repo.Customer
 import org.generis.business.logs.dto.CreateLogDto
 import org.generis.business.logs.enums.LogAction
@@ -41,14 +42,27 @@ class SubscriptionServiceImpl: SubscriptionService{
     @Inject
     lateinit var jwtService: JwtService
 
+    @Inject
+    lateinit var alertMail: RecurringInvoice
+
     override fun createSubscription(createSubscriptionDto: CreateSubscriptionDto): Subscription? {
 
-        val customer = entityManager.find(Customer::class.java, createSubscriptionDto.customerId)
-            ?: throw IllegalArgumentException("Invalid customer id")
+        val customer = if (createSubscriptionDto.customerId != null) {
+            entityManager.find(Customer::class.java, createSubscriptionDto.customerId)
+        } else {
+            null
+        }
+
+        val company = if (createSubscriptionDto.company != null) {
+            entityManager.find(Company::class.java, createSubscriptionDto.company)
+        } else {
+            null
+        }
 
         val subscription = Subscription()
         subscription.subscriptionNumber = subscription.generateSubscriptionNumber()
         subscription.customerId = customer
+        subscription.company = company
         subscription.startDate = LocalDate.parse(createSubscriptionDto.startDate,
             DateTimeFormatter.ofPattern("dd-MM-yyyy" ))
         subscription.endDate = LocalDate.parse(createSubscriptionDto.endDate,
@@ -60,7 +74,7 @@ class SubscriptionServiceImpl: SubscriptionService{
         var subTotal = 0.00
         for (itemDto in createSubscriptionDto.items) {
             val product = entityManager.find(Product::class.java, itemDto.productId)
-                ?: throw IllegalArgumentException("Invalid productId")
+                ?: throw IllegalArgumentException("Invalid product id")
 
             val startDate = subscription.startDate
             val total = if (createSubscriptionDto.recurringPeriod.toInt() == 30 && startDate!!.dayOfMonth >= 20) {
@@ -99,13 +113,13 @@ class SubscriptionServiceImpl: SubscriptionService{
 
         updateNextInvoiceDate(subscription)
         updateSubscription(subscription)
-        sendMailAlert(subscription)
+        sendMailAlert(subscription, alertMail)
 
         return subscription
     }
 
     override fun sendInvoice(subscription: Subscription, recurringInvoice: RecurringInvoice) {
-        val customerEmail = subscription.customerId?.email
+        val customerEmail = subscription.customerId?.email ?: subscription.company?.email
 
         val invoiceHtml = recurringInvoice.generateInvoiceHtml(subscription)
 
@@ -147,10 +161,15 @@ class SubscriptionServiceImpl: SubscriptionService{
         logService.createLog(createLog)
     }
 
-    private fun sendMailAlert(subscription:Subscription){
-        mailer.send(Mail.withText(subscription.customerId?.email,
-            "Hello ${subscription.customerId?.name},thank You For Subscribing",
-            "Your first payment is due on ${subscription.nextInvoiceDate}"))
+    private fun sendMailAlert(subscription:Subscription,  welcomeMail: RecurringInvoice){
+        val customerEmail = subscription.customerId?.email ?: subscription.company?.email
+
+        val invoiceHtml = welcomeMail.generateWelcomeMessage(subscription)
+
+        mailer.send(
+            Mail.withHtml(customerEmail, "Invoice", "")
+                .setHtml(invoiceHtml)
+        )
     }
 
     override fun updateNextInvoiceDate(subscription: Subscription) {

@@ -13,6 +13,7 @@ import org.generis.business.customer.dto.CreateCustomerDto
 import org.generis.business.customer.dto.UpdateCustomerDto
 import org.generis.business.customer.repo.Customer
 import org.generis.business.customer.service.CustomerService
+import org.generis.business.product.repo.Product
 import org.slf4j.LoggerFactory
 
 

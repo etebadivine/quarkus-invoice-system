@@ -3,6 +3,7 @@ package org.generis.business.company.repo
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase
 import jakarta.persistence.*
 import org.generis.business.country.repo.Country
+import org.generis.business.invoice.repo.InvoiceItem
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.GenericGenerator
 import java.time.LocalDateTime
@@ -32,6 +33,9 @@ class Company : PanacheEntityBase() {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "country")
     var country: Country? = null
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "company", cascade = [CascadeType.PERSIST, CascadeType.MERGE], orphanRemoval = true)
+    val staff: MutableList<CompanyStaff> = mutableListOf()
 
     @CreationTimestamp
     @Column(name = "created_date")

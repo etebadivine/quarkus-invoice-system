@@ -39,10 +39,10 @@ class EmailServiceImpl: EmailService {
 
     override fun sendEmail(requestDto: EmailRequestDto, emailId: String?) {
 
-        val attachmentBytes = File(requestDto.attachment).readBytes()
+//        val attachmentBytes = File(requestDto.attachment).readBytes()
 
-         mailer.send(Mail.withText(requestDto.recipient, requestDto.subject, requestDto.body)
-             .addAttachment(requestDto.attachment, attachmentBytes, "text/plain"))
+         mailer.send(Mail.withText(requestDto.recipient, requestDto.subject, requestDto.body))
+//             .addAttachment(requestDto.attachment, attachmentBytes, "text/plain"))
     }
 
     private fun Email.toDto(): EmailResponseDto {

@@ -2,7 +2,8 @@ package org.generis.business.subscription.dto
 
 
 data class CreateSubscriptionDto(
-    var customerId: String,
+    var customerId: String?,
+    var company: String?,
     var items: List<SubscriptionItemDto>,
     var startDate: String,
     var endDate: String,

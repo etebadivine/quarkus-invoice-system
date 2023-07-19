@@ -39,17 +39,6 @@ class CustomerServiceImpl : CustomerService {
         return entityManager.find(Customer::class.java, id) ?:
         throw ServiceException(-1, "No customer found with id $id")
     }
-
-    override fun getCustomerByName(customerName: String): Customer? {
-        val query: TypedQuery<Customer> = entityManager.createQuery(
-            "SELECT c FROM Customer c WHERE c.name = :name",
-            Customer::class.java
-        )
-        query.setParameter("name", customerName)
-        return query.singleResult
-
-    }
-
     override fun getAllCustomers(): List<Customer> {
         val query = entityManager.createQuery("SELECT c FROM Customer c", Customer::class.java)
         return query.resultList ?: throw ServiceException(-1, "No customers found")
