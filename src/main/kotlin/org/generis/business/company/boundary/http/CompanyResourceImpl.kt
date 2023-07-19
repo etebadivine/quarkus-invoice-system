@@ -1,5 +1,6 @@
 package org.generis.business.company.boundary.http
 
+import io.quarkus.security.Authenticated
 import jakarta.inject.Inject
 import jakarta.validation.Valid
 import jakarta.ws.rs.*
@@ -13,7 +14,7 @@ import org.generis.business.company.service.CompanyService
 import org.generis.business.customer.boundary.CompanyResource
 import org.slf4j.LoggerFactory
 
-
+@Authenticated
 @Path("companies")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -39,7 +40,7 @@ class CompanyResourceImpl: CompanyResource {
     @GET
     @Path("{id}")
     override fun getCompany(@PathParam("id") id: String): ApiResponse<Company?> {
-        val company = companyService?.getCompany(id)
+        val company = companyService.getCompany(id)
         return wrapSuccessInResponse(company)
     }
 

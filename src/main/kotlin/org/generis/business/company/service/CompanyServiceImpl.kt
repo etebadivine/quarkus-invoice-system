@@ -11,6 +11,10 @@ import org.generis.business.company.repo.Company
 import org.generis.business.company.repo.CompanyStaff
 import org.generis.business.country.repo.Country
 import org.generis.business.invoice.repo.Invoice
+import org.generis.business.logs.dto.CreateLogDto
+import org.generis.business.logs.enums.LogAction
+import org.generis.business.logs.service.JwtService
+import org.generis.business.logs.service.LogService
 import org.generis.business.subscription.repo.Subscription
 import org.modelmapper.ModelMapper
 
@@ -23,6 +27,13 @@ class CompanyServiceImpl : CompanyService {
     lateinit var entityManager: EntityManager
 
     private val modelMapper = ModelMapper()
+
+    @Inject
+    lateinit var logService: LogService
+
+    @Inject
+    lateinit var jwtService: JwtService
+
 
     override fun getCompany(id: String): Company? {
         return entityManager.find(Company::class.java, id) ?:
@@ -53,6 +64,15 @@ class CompanyServiceImpl : CompanyService {
 
         entityManager.persist(company)
 
+        val user =  jwtService.getUserInfo()
+
+        val createLog = CreateLogDto(
+            action = LogAction.CREATED_COMPANY,
+            target = company.name!!,
+            userId = user.id
+        )
+        logService.createLog(createLog)
+
         return company
     }
 
@@ -60,14 +80,23 @@ class CompanyServiceImpl : CompanyService {
         val company = entityManager.find(Company::class.java, id)
             ?:  throw ServiceException(-1, "No company found with id $id")
 
-        val country = entityManager.find(Country::class.java, id)
-            ?:  throw ServiceException(-1, "No country found with id $id")
+        val country = entityManager.find(Country::class.java,  updateCompanyDto.country)
+            ?:  throw ServiceException(-1, "No country found")
 
         updateCompanyDto.name?.let { company.name = it }
         updateCompanyDto.email?.let { company.email = it }
         updateCompanyDto.phoneNumber?.let { company.phoneNumber = it }
         updateCompanyDto.address?.let { company.address = it }
-        updateCompanyDto.country?.let { country.countryName = it }
+        updateCompanyDto.country?.let { company.country = country }
+
+        val user =  jwtService.getUserInfo()
+
+        val createLog = CreateLogDto(
+            action = LogAction.UPDATED_COMPANY,
+            target = company.name!!,
+            userId = user.id
+        )
+        logService.createLog(createLog)
 
         return company
     }
@@ -82,7 +111,7 @@ class CompanyServiceImpl : CompanyService {
                 .resultList
 
             for (invoice in invoices) {
-                invoice.customerId = null
+                invoice.company = null
                 entityManager.remove(invoice)
             }
 
@@ -91,11 +120,20 @@ class CompanyServiceImpl : CompanyService {
                 .resultList
 
             for (subscription in subscriptions) {
-                subscription.customerId = null
+                subscription.company = null
                 entityManager.merge(subscription)
             }
 
             entityManager.remove(company)
+
+            val user =  jwtService.getUserInfo()
+
+            val createLog = CreateLogDto(
+                action = LogAction.DELETED_PRODUCT,
+                target = company.name!!,
+                userId = user.id
+            )
+            logService.createLog(createLog)
         }
     }
 
