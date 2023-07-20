@@ -20,7 +20,7 @@ class EmailResourceImpl {
 
     @POST
     fun sendEmail(requestDto: EmailRequestDto): Response {
-            val responseDto: EmailResponseDto = emailService.sendEmailWithAttachment(requestDto)
-            return Response.ok(responseDto).build()
+             emailService.sendEmailWithAttachment(requestDto)
+            return Response.ok().build()
         }
 }
