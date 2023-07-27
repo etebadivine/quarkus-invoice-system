@@ -55,6 +55,20 @@ class InvoiceResourceImpl : InvoiceResource {
         return wrapSuccessInResponse(invoices)
     }
 
+    @GET
+    @Path("/customer/{customerId}")
+    override fun getInvoiceByCustomerId(@PathParam("customerId")customerId: String): ApiResponse<List<Invoice?>> {
+        val invoice = invoiceService.getInvoiceByCustomerId(customerId)
+        return wrapSuccessInResponse(invoice)
+    }
+
+    @GET
+    @Path("/company/{companyId}")
+    override fun getInvoiceByCompanyId(@PathParam("companyId")companyId: String): ApiResponse<List<Invoice?>> {
+        val invoice = invoiceService.getInvoiceByCompanyId(companyId)
+        return wrapSuccessInResponse(invoice)
+    }
+
     @PUT
     @Path("/update-status")
     override fun updateInvoiceStatus(updateInvoiceStatusDto: UpdateInvoiceStatusDto): ApiResponse<Invoice?> {

@@ -13,6 +13,10 @@ interface InvoiceService {
 
     fun getAllInvoices(): List<Invoice>
 
+    fun getInvoiceByCustomerId(customerId: String): List<Invoice?>
+
+    fun getInvoiceByCompanyId(companyId: String): List<Invoice?>
+
     fun updateInvoiceStatus(updateInvoiceStatusDto: UpdateInvoiceStatusDto): Invoice?
 
     fun deleteInvoice(id: String)

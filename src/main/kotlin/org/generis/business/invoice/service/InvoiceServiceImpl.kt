@@ -3,6 +3,7 @@ package org.generis.business.invoice.service
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.*
 import jakarta.persistence.EntityManager
+import jakarta.persistence.TypedQuery
 import jakarta.transaction.Transactional
 import org.generis.base.exception.ServiceException
 import org.generis.business.company.repo.Company
@@ -37,20 +38,19 @@ class InvoiceServiceImpl: InvoiceService {
     lateinit var jwtService: JwtService
 
     override fun createInvoice(createInvoiceDto: CreateInvoiceDto): Invoice? {
-        // Retrieve the customer based on the customerId from the database
-        val customer = entityManager.find(Customer::class.java, createInvoiceDto.customerId)
-            ?: throw IllegalArgumentException("Invalid customer id")
+        val customer = if (createInvoiceDto.customerId != null) {
+            entityManager.find(Customer::class.java, createInvoiceDto.customerId)
+        } else { null
+        }
 
         val company = if (createInvoiceDto.company != null) {
             entityManager.find(Company::class.java, createInvoiceDto.company)
-        } else {
-            null
+        } else { null
         }
 
         val countryCurrency = if (createInvoiceDto.country != null) {
             entityManager.find(Country::class.java, createInvoiceDto.country)
-        } else {
-            null
+        } else { null
         }
 
         // Create the Invoice instance
@@ -77,7 +77,7 @@ class InvoiceServiceImpl: InvoiceService {
             // Determine the exchange rate to use for the calculation
 
             val exchangeRate = when {
-                createInvoiceDto.useCustomerCurrency -> customer.country?.exchangeRate
+                createInvoiceDto.useCustomerCurrency -> customer?.country?.exchangeRate
                 createInvoiceDto.useCompanyCurrency -> company?.country?.exchangeRate
                 else -> invoice.country?.exchangeRate?: 1.0
             }
@@ -107,15 +107,14 @@ class InvoiceServiceImpl: InvoiceService {
         val discountPercent = createInvoiceDto.discount
         val discountAmount = subTotal * (discountPercent?.div(100)?: 0.0)
 
-        val taxPercent = createInvoiceDto.tax
-        val taxAmount = subTotal * (taxPercent?.div(100)?: 0.0)
+//        val taxPercent = createInvoiceDto.tax
+//        val taxAmount = subTotal * (taxPercent?.div(100)?: 0.0)
 
         // Apply tax and discount to calculate the total
 
-        val totalAmount = subTotal + taxAmount - discountAmount
+        val totalAmount = subTotal - discountAmount
         invoice.totalAmount =  totalAmount.toBigDecimal().setScale(4, RoundingMode.UP).toDouble()
 
-        // Save the invoice to the database
         entityManager.persist(invoice)
 
         val user =  jwtService.getUserInfo()
@@ -137,6 +136,20 @@ class InvoiceServiceImpl: InvoiceService {
     override fun getAllInvoices(): List<Invoice> {
         return entityManager.createQuery("SELECT i FROM Invoice i", Invoice::class.java)?.resultList
             ?: throw ServiceException(-1, "No invoices found")
+    }
+
+    override fun getInvoiceByCustomerId(customerId: String): List<Invoice?> {
+        return entityManager.createQuery(
+            "SELECT i FROM Invoice i WHERE i.customerId.id = :customerId", Invoice::class.java
+        ).setParameter("customerId", customerId)
+            .resultList
+    }
+
+    override fun getInvoiceByCompanyId(companyId: String): List<Invoice?> {
+        return entityManager.createQuery(
+            "SELECT i FROM Invoice i WHERE i.company.id = :companyId", Invoice::class.java
+        ).setParameter("companyId", companyId)
+            .resultList
     }
 
     override fun updateInvoiceStatus(updateInvoiceStatusDto: UpdateInvoiceStatusDto): Invoice? {

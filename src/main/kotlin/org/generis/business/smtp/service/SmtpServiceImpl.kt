@@ -37,9 +37,7 @@ class SmtpServiceImpl: SmtpService {
         val smtp = modelMapper.map(createSmtpDto, Smtp::class.java)
         smtp.persist()
 
-        // Save the provided email configurations to the application.properties file
         val properties = Properties()
-//        val inputStream = FileInputStream("invoice-system/src/main/resources/application.properties")
         val inputStream = FileInputStream("src/main/resources/application.properties")
         properties.load(inputStream)
         inputStream.close()

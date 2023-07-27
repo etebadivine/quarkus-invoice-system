@@ -14,6 +14,9 @@ interface InvoiceResource {
 
     fun getAllInvoices(): ApiResponse<List<Invoice>>
 
+    fun getInvoiceByCustomerId(customerId: String): ApiResponse<List<Invoice?>>
+    fun getInvoiceByCompanyId(companyId: String): ApiResponse<List<Invoice?>>
+
     fun updateInvoiceStatus(updateInvoiceStatusDto: UpdateInvoiceStatusDto): ApiResponse<Invoice?>
 
     fun deleteInvoice(id: String): ApiResponse<Boolean>
