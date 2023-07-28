@@ -44,7 +44,7 @@ class Invoice : PanacheEntityBase() {
     var company: Company? = null
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "invoice", cascade = [CascadeType.PERSIST, CascadeType.MERGE], orphanRemoval = true)
-    val items: MutableList<InvoiceItem> = mutableListOf()
+    var items: MutableList<InvoiceItem>? = mutableListOf()
 
     @Column(name = "invoice_status")
     @Enumerated(EnumType.STRING)
@@ -61,7 +61,7 @@ class Invoice : PanacheEntityBase() {
     var tax: Double? = 0.00
 
     @Column(name = "discount")
-    var discount: Double? = 0.00
+    var discount: Int? = 0
 
     @Column(name = "sub_total")
     var subTotal: Double? = 0.00

@@ -33,7 +33,7 @@ class Subscription : PanacheEntityBase() {
     var company: Company? = null
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "subscription", cascade = [CascadeType.PERSIST, CascadeType.MERGE], orphanRemoval = true)
-    var items: MutableList<SubscriptionItem> = mutableListOf()
+    var items: MutableList<SubscriptionItem>? = mutableListOf()
 
     @Column(name = "start_date")
     var startDate: LocalDate? = null

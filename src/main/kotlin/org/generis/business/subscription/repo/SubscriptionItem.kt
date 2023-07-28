@@ -27,7 +27,7 @@ class SubscriptionItem : PanacheEntityBase() {
     var quantity: Int? = null
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.REMOVE])
     @JoinColumn(name = "subscription_id")
     var subscription: Subscription? = null
 

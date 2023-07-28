@@ -19,7 +19,7 @@ class InvoiceItem : PanacheEntityBase() {
     @Column(name = "id")
     var id: String? = null
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY,cascade = [CascadeType.REMOVE])
     @JoinColumn(name = "product_id")
     var productId: Product? = null
 

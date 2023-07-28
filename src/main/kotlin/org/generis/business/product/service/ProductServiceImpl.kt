@@ -6,6 +6,8 @@ import jakarta.persistence.EntityManager
 import jakarta.persistence.TypedQuery
 import jakarta.transaction.Transactional
 import org.generis.base.exception.ServiceException
+import org.generis.business.invoice.repo.Invoice
+import org.generis.business.invoice.repo.InvoiceItem
 import org.generis.business.logs.dto.CreateLogDto
 import org.generis.business.logs.enums.LogAction
 import org.generis.business.logs.service.JwtService
@@ -14,6 +16,8 @@ import org.generis.business.product.dto.CreateProductDto
 import org.generis.business.product.dto.UpdateProductDto
 import org.generis.business.product.enums.ProductState
 import org.generis.business.product.repo.Product
+import org.generis.business.subscription.repo.Subscription
+import org.generis.business.subscription.repo.SubscriptionItem
 import org.modelmapper.ModelMapper
 
 
@@ -99,9 +103,18 @@ class ProductServiceImpl: ProductService {
 
     override fun deleteProductById(id: String){
         val product = entityManager.find(Product::class.java, id)
-        if (product == null) {
-            throw ServiceException(-1, "Product not found")
-        } else {
+        if (product != null) {
+            val invoices = entityManager.createQuery("SELECT i FROM Invoice i JOIN FETCH i.items it WHERE it.productId = :productId", Invoice::class.java)
+                .setParameter("productId", product)
+                .resultList
+
+            val subscriptions = entityManager.createQuery("SELECT s FROM Subscription s JOIN FETCH s.items si WHERE si.productId = :productId", Subscription::class.java)
+                .setParameter("productId", product)
+                .resultList
+
+            invoices.forEach { it.items?.forEach { item -> if (item.productId?.id == id) item.productId = null } }
+            subscriptions.forEach { it.items?.forEach { item -> if (item.productId?.id == id) item.productId = null } }
+
             entityManager.remove(product)
         }
 

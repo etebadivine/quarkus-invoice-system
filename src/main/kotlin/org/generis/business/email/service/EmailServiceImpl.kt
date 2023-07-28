@@ -4,12 +4,10 @@ import io.quarkus.mailer.Mail
 import io.quarkus.mailer.Mailer
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import jakarta.persistence.EntityManager
 import jakarta.transaction.Transactional
-import org.generis.business.email.dto.EmailRequestDto
-import org.generis.business.email.dto.EmailResponseDto
-import org.generis.business.email.repo.Email
-import java.io.File
+import org.generis.base.integrations.RecurringInvoice
+import org.generis.business.invoice.repo.Invoice
+import org.generis.business.invoice.service.InvoiceService
 
 
 @Transactional
@@ -19,39 +17,17 @@ class EmailServiceImpl: EmailService {
     lateinit var mailer: Mailer
 
     @Inject
-    lateinit var entityManager: EntityManager
+    lateinit var invoiceService: InvoiceService
 
-    override fun sendEmailWithAttachment(requestDto: EmailRequestDto): EmailResponseDto {
-        val email = saveEmailToDatabase(requestDto)
-        sendEmail(requestDto, email.id)
-        return email.toDto()
-    }
+    override fun sendEmail(id: String, invoiceMail: RecurringInvoice) {
 
-    override fun saveEmailToDatabase(requestDto: EmailRequestDto): Email {
-        val email = Email()
-        email.recipient = requestDto.recipient
-        email.subject = requestDto.subject
-        email. body = requestDto.body
+        val invoice = invoiceService.getInvoice(id)
 
-        entityManager.persist(email)
-        return email
-    }
+        val customerMail = invoice?.customerId?.email ?: invoice?.company?.email
 
-    override fun sendEmail(requestDto: EmailRequestDto, emailId: String?) {
+        val mailMessage = invoiceMail.invoiceMail(invoice!!)
 
-//        val attachmentBytes = File(requestDto.attachment).readBytes()
-
-         mailer.send(Mail.withText(requestDto.recipient, requestDto.subject, requestDto.body))
-//             .addAttachment(requestDto.attachment, attachmentBytes, "text/plain"))
-    }
-
-    private fun Email.toDto(): EmailResponseDto {
-        return EmailResponseDto(
-            id = this.id,
-            recipient = this.recipient,
-            subject = this.subject,
-            body = this.body,
-            attachment = this.attachment,
-        )
+         mailer.send(Mail.withHtml(customerMail, "Invoice", "")
+             .setHtml(mailMessage))
     }
 }

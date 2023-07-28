@@ -105,7 +105,7 @@ class InvoiceServiceImpl: InvoiceService {
 
         // Apply tax and discount to calculate the total
         val discountPercent = createInvoiceDto.discount
-        val discountAmount = subTotal * (discountPercent?.div(100)?: 0.0)
+        val discountAmount = subTotal * (discountPercent?.div(100)?: 0)
 
 //        val taxPercent = createInvoiceDto.tax
 //        val taxAmount = subTotal * (taxPercent?.div(100)?: 0.0)
